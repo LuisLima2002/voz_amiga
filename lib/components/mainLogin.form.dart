@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MainLoginForm extends StatefulWidget {
   final Function loginFunction;
   final Function changeForm;
 
-  const MainLoginForm(
-      {super.key, required this.loginFunction, required this.changeForm});
+  const MainLoginForm({
+    super.key,
+    required this.loginFunction,
+    required this.changeForm,
+  });
 
   @override
   State<MainLoginForm> createState() => _MainLoginFormState();
@@ -19,23 +23,25 @@ class _MainLoginFormState extends State<MainLoginForm> {
         autofocus: true,
         keyboardType: TextInputType.emailAddress,
         decoration: const InputDecoration(
-            labelText: "Email",
-            labelStyle: TextStyle(color: Color(0xFF6D6D6D))),
+          labelText: "Email",
+          labelStyle: TextStyle(color: Color(0xFF6D6D6D)),
+        ),
       ),
       TextFormField(
         autofocus: true,
         obscureText: true,
         keyboardType: TextInputType.text,
         decoration: const InputDecoration(
-            labelText: "Senha",
-            labelStyle: TextStyle(color: Color(0xFF6D6D6D))),
+          labelText: "Senha",
+          labelStyle: TextStyle(color: Color(0xFF6D6D6D)),
+        ),
       ),
       const SizedBox(
         height: 50,
       ),
       ElevatedButton(
         onPressed: () {
-          widget.loginFunction();
+          context.go('/');
         },
         child: const Padding(
           padding: EdgeInsets.all(10),
