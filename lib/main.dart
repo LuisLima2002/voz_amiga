@@ -7,7 +7,6 @@ import 'package:voz_amiga/shared/app_provider.dart';
 import 'package:voz_amiga/shared/client.dart';
 
 void main() {
-  print(kDebugMode);
   if (kDebugMode) {
     HttpOverrides.global = BypassCertificateOverride();
   }

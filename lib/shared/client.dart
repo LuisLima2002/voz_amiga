@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
@@ -9,8 +7,6 @@ class ApiClient {
 
   static Future<http.Response> post(String route, Object body) async {
     final uri = _getUri(route);
-    final c = http.Client();
-
     final response = await http.post(
       uri,
       headers: <String, String>{
@@ -22,9 +18,24 @@ class ApiClient {
     return response;
   }
 
-  static Future<http.Response> get(String route) async {
-    final response = await http.get(_getUri(route));
-    return response;
+  static Future<http.Response> get(
+    String route, {
+    Map<String, String>? params,
+  }) async {
+    try {
+      if (params != null && params.length > 1) {
+        var paramsString = params.entries
+            .map(
+              (p) => '&${p.key}=${p.value}',
+            )
+            .join("&");
+        route += '?$paramsString';
+      }
+      final response = await http.get(_getUri(route));
+      return response;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   static Uri _getUri(String route) {

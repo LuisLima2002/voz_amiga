@@ -1,9 +1,14 @@
+import 'package:async/async.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
+// import 'package:voz_amiga/components/video_player.dart';
+import 'package:voz_amiga/infra/services/activities.service.dart';
 
 class ActivityFormPage extends StatefulWidget {
-  const ActivityFormPage({super.key});
+  final String? id;
+  const ActivityFormPage({super.key, this.id = '0'});
 
   @override
   State<ActivityFormPage> createState() => _ActivityFormPageState();
@@ -12,14 +17,15 @@ class ActivityFormPage extends StatefulWidget {
 class _ActivityFormPageState extends State<ActivityFormPage> {
   late Map<String, TextEditingController> _controllers;
   final _formKey = GlobalKey<FormState>(debugLabel: 'activityForm');
+  late bool _fileError;
   PlatformFile? _file;
   @override
   void initState() {
     super.initState();
+    _fileError = false;
     _controllers = <String, TextEditingController>{
       'title': TextEditingController(),
       'description': TextEditingController(),
-      'data': TextEditingController(),
       'points': TextEditingController(),
     };
   }
@@ -29,6 +35,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
     _controllers.forEach((k, c) {
       c.dispose();
     });
+    _fileError = false;
     super.dispose();
   }
 
@@ -41,20 +48,27 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
           key: _formKey,
           child: Column(
             children: [
-              const SizedBox(
-                width: double.infinity,
-                child: Text(
-                  'Nova Atividade',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                ),
-              ),
               const SizedBox(height: 15),
               // Title
               _titleFormField,
               const SizedBox(height: 10),
+              // Points
+              _pointsFormField,
+              const SizedBox(height: 10),
               // Description
-              _descriptionFormField, const SizedBox(height: 10),
-              _file == null ? const SizedBox(height: 1) : _selectedFile,
+              _descriptionFormField,
+              const SizedBox(height: 10),
+              _file == null
+                  ? _fileError
+                      ? const SizedBox(
+                          height: 20,
+                          child: Text(
+                            "Precisa selecionar um arquivo",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        )
+                      : const SizedBox(height: 1)
+                  : _selectedFile,
               // Select File
               Padding(
                 padding: const EdgeInsets.only(top: 10),
@@ -67,6 +81,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                     );
                     if (result != null) {
                       setState(() {
+                        _fileError = false;
                         _file = result.files[0];
                       });
                     }
@@ -77,7 +92,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                   ),
                   icon: const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Icon(Icons.file_present_rounded),
+                    child: Icon(Icons.upload_sharp),
                   ),
                 ),
               ),
@@ -85,16 +100,17 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // ActivitiesService.save();
-                    }
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                  ),
+                  onPressed: () async {
+                    await _save();
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(8),
                     child: Text(
                       "Salvar",
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                   ),
                 ),
@@ -104,6 +120,65 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _save() async {
+    if (_file == null) {
+      setState(() {
+        _fileError = true;
+      });
+    }
+    if (_formKey.currentState!.validate() && _file != null) {
+      try {
+        var res = await ActivitiesService.save(
+          title: _controllers['title']!.text,
+          description: _controllers['description']!.text,
+          points: int.parse(_controllers['points']!.text),
+          file: _file!,
+        );
+        if (res > 0) {
+          setState(() {
+            _formKey.currentState?.reset();
+            _controllers.forEach((k, v) {
+              _controllers[k]!.text = '';
+            });
+            _file = null;
+            _fileError = false;
+          });
+        }
+      } catch (e) {
+        showDialog(
+          // ignore: use_build_context_synchronously
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              alignment: Alignment.center,
+              icon: const Icon(Icons.dangerous, color: Colors.red, size: 35),
+              title: const Text('Ocorreu um erro durante o salvamento!'),
+              titleTextStyle: const TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+              ),
+              content: Text(e.toString()),
+              actions: [
+                TextButton(
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          },
+        );
+      }
+    }
   }
 
   Widget get _titleFormField {
@@ -180,21 +255,65 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
     );
   }
 
+  Widget get _pointsFormField {
+    return TextFormField(
+      autofocus: true,
+      controller: _controllers['points'],
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return "Obrigatório!";
+        }
+        final pts = int.tryParse(value, radix: 10);
+        if (pts == null) {
+          return "Número inválido";
+        }
+        if (pts <= 0) {
+          return "Maior que zero";
+        }
+
+        return null;
+      },
+      keyboardType: const TextInputType.numberWithOptions(),
+      inputFormatters: <TextInputFormatter>[
+        FilteringTextInputFormatter.digitsOnly
+      ],
+      minLines: 1,
+      maxLines: 1,
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.only(
+          left: 4,
+          right: 4,
+          bottom: 4,
+        ),
+        labelText: "Pontos por conclusão",
+        hintText: "O número de acordo com a dificuldade",
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        hintStyle: TextStyle(
+          color: Colors.grey,
+          fontSize: 15,
+        ),
+        labelStyle: TextStyle(
+          color: Colors.black,
+          fontSize: 18,
+        ),
+      ),
+    );
+  }
+
   Widget get _selectedFile {
-    print(lookupMimeType(_file!.path.toString()));
+    final mimeType = lookupMimeType(_file!.path.toString());
+    Icon fileIcon = switch (mimeType?.split('/')[0]) {
+      'video' => const Icon(Icons.video_library_outlined),
+      'image' => const Icon(Icons.photo_outlined),
+      _ => const Icon(Icons.question_mark_sharp)
+    };
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            _file!.xFile.mimeType?.startsWith('video') ?? false
-                ? const Icon(
-                    Icons.videocam_rounded,
-                  )
-                : const Icon(
-                    Icons.photo_size_select_actual_rounded,
-                  ),
+            fileIcon,
             Text(
               _file!.name,
               style: const TextStyle(

@@ -3,11 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:voz_amiga/shared/app.routes.dart';
 
 class RouteNames {
-  static const login = '/login';
-  static const home = '/';
-  static const activityList = '/activity';
-  static const exercisesList = '/exercises';
-  static activity(id) => '/activity/$id';
+  static const String login = '/login';
+  static const String home = '/';
+  static const String activityList = '/activity';
+  static const String exercisesList = '/exercises';
+  static const String newActivity = '/activity/new/form';
+  static String editActivity(String id) => '/activity/$id/form';
+  static String activity(String id) => '/activity/$id';
 }
 
 AppBar createAppBar({

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class VaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double height;
@@ -16,6 +17,12 @@ class VaAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: true,
+      leading: context.canPop()
+          ? IconButton(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.arrow_back),
+            )
+          : null,
       title: Text(
         title,
         style: const TextStyle(

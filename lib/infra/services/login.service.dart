@@ -7,8 +7,13 @@ import 'package:voz_amiga/dto/result.dto.dart';
 import 'package:voz_amiga/shared/client.dart';
 
 class LoginService {
-  final _path = 'auth';
+  static const _path = 'auth';
   static const _storage = FlutterSecureStorage();
+
+  static Future<String?> get giveMyToken async {
+    final token = await _storage.read(key: 'jwt');
+    return token;
+  }
 
   Future<bool> isLoggedIn() async {
     final token = await _storage.read(key: 'jwt');

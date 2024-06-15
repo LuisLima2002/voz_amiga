@@ -23,7 +23,7 @@ class NavigationContainer extends StatelessWidget {
     });
   }
 
-  Widget _portraitLayout(context) {
+  Widget _portraitLayout(BuildContext context) {
     return Scaffold(
       body: navigationShell,
       appBar: VaAppBar(

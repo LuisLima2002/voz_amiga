@@ -1,15 +1,16 @@
 // libs
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:voz_amiga/pages/activity/activity_form.page.dart';
-import 'package:voz_amiga/pages/exercises/exercises_list.page.dart';
-import 'package:voz_amiga/pages/home.page.dart';
 // other
 import 'package:voz_amiga/shared/consts.dart';
 // pages
 import 'package:voz_amiga/pages/activity/activity_list.page.dart';
 import 'package:voz_amiga/pages/navigation_container.page.dart';
 import 'package:voz_amiga/pages/login.page.dart';
+import 'package:voz_amiga/pages/activity/activity_form.page.dart';
+import 'package:voz_amiga/pages/activity/activity_viewer.dart';
+import 'package:voz_amiga/pages/exercises/exercises_list.page.dart';
+import 'package:voz_amiga/pages/home.page.dart';
 
 class AppRouteConfig {
   static final rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -19,7 +20,7 @@ class AppRouteConfig {
   static GoRouter getRouterConfig() {
     return GoRouter(
       navigatorKey: rootNavigatorKey,
-      initialLocation: RouteNames.activityList,
+      initialLocation: RouteNames.newActivity,
       routes: _getAplicationRoutes(),
     );
   }
@@ -61,14 +62,27 @@ class AppRouteConfig {
               GoRoute(
                 name: 'Atividades',
                 path: RouteNames.activityList,
-                pageBuilder: (context, state) {
-                  return const NoTransitionPage(child: ActivityListPage());
+                builder: (context, state) {
+                  return const ActivityListPage();
                 },
                 routes: [
                   GoRoute(
-                    name: 'Nova Atividade',
+                    name: 'Atividade',
                     path: ':id',
-                    builder: (context, state) => const ActivityFormPage(),
+                    builder: (context, state) {
+                      return ActivityViewerPage(
+                        id: state.pathParameters['id']!,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    name: 'Nova Atividade',
+                    path: ':id/form',
+                    builder: (context, state) {
+                      return ActivityFormPage(
+                        id: state.pathParameters['id'],
+                      );
+                    },
                   ),
                 ],
               ),
