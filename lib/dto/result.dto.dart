@@ -10,7 +10,7 @@ class ResultWithBody<T> extends Result {
   ) : super.parseJSON(data) {
     try {
       if (data['messages'] == null) {
-        _content = bodyParser(data['value']);
+        _content = bodyParser(data);
       }
     } catch (e) {
       throw Exception(e);

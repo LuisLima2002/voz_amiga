@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
-  static const String _serverAdress = "192.168.0.6:5001";
+  static const String _serverAdress = "localhost:5001";
 
   static Future<http.Response> post(String route, Object body) async {
     final uri = _getUri(route);
