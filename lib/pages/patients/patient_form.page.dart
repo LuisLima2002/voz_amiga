@@ -1,11 +1,9 @@
 import 'package:brasil_fields/brasil_fields.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:mime/mime.dart';
+import 'package:voz_amiga/dto/patient.dto.dart';
 // import 'package:voz_amiga/components/video_player.dart';
-import 'package:voz_amiga/infra/services/activities.service.dart';
 import 'package:voz_amiga/infra/services/patients.service.dart';
 
 class PatientFormPage extends StatefulWidget {
@@ -17,6 +15,7 @@ class PatientFormPage extends StatefulWidget {
 }
 
 class _PatientFormPageState extends State<PatientFormPage> {
+  PatientDTO? _patientFuture;
   late Map<String, TextEditingController> _controllers;
   final _formKey = GlobalKey<FormState>(debugLabel: 'patientForm');
   @override
@@ -30,12 +29,21 @@ class _PatientFormPageState extends State<PatientFormPage> {
       'nameResponsable': TextEditingController(),
       'responsibleDocument': TextEditingController(),
     };
-    for (var key in _controllers.keys) {
-      _controllers[key]!.text="12/12/2000";
+    if(widget.id != ''){
+        loadPatient();
     }
-    _controllers['cpfPatient']!.text="495.636.948-48";
-    _controllers['emergencyContact']!.text="(18) 9971-7185";
-    _controllers['responsibleDocument']!.text="495.636.948-48";
+  }
+  
+  void loadPatient() async{
+      _patientFuture =  (await PatientsService.getPatient(widget.id!)).$2;
+      if(_patientFuture!=null){
+        _controllers['name']!.text= _patientFuture!.name;
+        _controllers['birthdate']!.text= DateFormat('dd/MM/yyyy').format(DateTime.parse(_patientFuture!.birthdate));
+        _controllers['emergencyContact']!.text=_patientFuture!.emergencyContact;
+        _controllers['cpfPatient']!.text=_patientFuture!.cpfPatient;
+        _controllers['nameResponsable']!.text=_patientFuture!.nameResponsible;
+        _controllers['responsibleDocument']!.text=_patientFuture!.responsibleDocument;
+      }
   }
 
   @override
@@ -96,22 +104,31 @@ class _PatientFormPageState extends State<PatientFormPage> {
   Future<void> _save() async {
     if (_formKey.currentState!.validate()) {
       try {
-        var res = await PatientsService.save(
-          name: _controllers['name']!.text,
-          birthdate: _controllers['birthdate']!.text,
-          emergencyContact: _controllers['emergencyContact']!.text,
-          cpfPatient: _controllers['cpfPatient']!.text,
-          nameResponsable: _controllers['nameResponsable']!.text,
-          responsibleDocument: _controllers['responsibleDocument']!.text,
+        if(_patientFuture!=null){
+          await PatientsService.update(
+            patient: PatientDTO(id: _patientFuture!.id, name: _controllers['name']!.text
+            , birthdate: _controllers['birthdate']!.text, emergencyContact: _controllers['emergencyContact']!.text
+            , cpfPatient: _controllers['cpfPatient']!.text, nameResponsible: _controllers['nameResponsable']!.text
+            , responsibleDocument: _controllers['responsibleDocument']!.text, code: _patientFuture!.code)
+          );
+        }else{
+          var res = await PatientsService.save(
+            name: _controllers['name']!.text,
+            birthdate: _controllers['birthdate']!.text,
+            emergencyContact: _controllers['emergencyContact']!.text,
+            cpfPatient: _controllers['cpfPatient']!.text,
+            nameResponsable: _controllers['nameResponsable']!.text,
+            responsibleDocument: _controllers['responsibleDocument']!.text,
 
-        );
-        if (res > 0) {
-          setState(() {
-            _formKey.currentState?.reset();
-            _controllers.forEach((k, v) {
-              _controllers[k]!.text = '';
+          );
+          if (res > 0) {
+            setState(() {
+              _formKey.currentState?.reset();
+              _controllers.forEach((k, v) {
+                _controllers[k]!.text = '';
+              });
             });
-          });
+          }
         }
       } catch (e) {
         showDialog(

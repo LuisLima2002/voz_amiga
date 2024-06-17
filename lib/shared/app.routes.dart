@@ -1,6 +1,8 @@
 // libs
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:voz_amiga/infra/services/login.service.dart';
 import 'package:voz_amiga/pages/patients/patient_form.page.dart';
 import 'package:voz_amiga/pages/patients/patient_viewer.dart';
 import 'package:voz_amiga/pages/patients/patients_list.page.dart';
@@ -25,6 +27,13 @@ class AppRouteConfig {
       navigatorKey: rootNavigatorKey,
       initialLocation: RouteNames.newActivity,
       routes: _getAplicationRoutes(),
+      redirect: (context, state) async {
+        final res = await LoginService().isLoggedIn();
+        if (!res) {
+          return RouteNames.login;
+        }  
+        return null;
+      },
     );
   }
 
@@ -59,12 +68,7 @@ class AppRouteConfig {
                 name: 'Home',
                 path: RouteNames.home,
                 builder: (context, state) => const HomePage(),
-              ),
-              GoRoute(
-                name: 'Home Paciente',
-                path: RouteNames.homePatient,
-                builder: (context, state) => const Text("Vocé está logado como paciente"),
-              ),
+              )
             ],
           ),
           StatefulShellBranch(
@@ -147,6 +151,11 @@ class AppRouteConfig {
         name: 'Login',
         path: RouteNames.login,
         builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        name: 'Home Paciente',
+        path: RouteNames.homePatient,
+        builder: (context, state) => const Text("Vocé está logado como paciente"),
       ),
     ];
   }

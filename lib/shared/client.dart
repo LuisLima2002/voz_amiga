@@ -18,30 +18,47 @@ class ApiClient {
     return response;
   }
 
+  static Future<http.Response> put(String route, Object body) async {
+    final uri = _getUri(route);
+    final response = await http.put(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(body),
+    );
+
+    return response;
+  }
+
   static Future<http.Response> get(
     String route, {
     Map<String, String>? params,
   }) async {
     try {
-      if (params != null && params.length > 1) {
-        var paramsString = params.entries
-            .map(
-              (p) => '&${p.key}=${p.value}',
-            )
-            .join("&");
-        route += '?$paramsString';
-      }
-      final response = await http.get(_getUri(route));
+      final response = await http.get(_getUri(route,params));
       return response;
     } catch (e) {
       rethrow;
     }
   }
 
-  static Uri _getUri(String route) {
+   static Future<http.Response> delete(
+    String route, {
+    Map<String, String>? params,
+  }) async {
+    try {
+      final response = await http.delete(_getUri(route,params));
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Uri _getUri(String route,[ Map<String,dynamic>? param]) {
     return route.startsWith('http')
         ? Uri.parse(route)
-        : Uri.https(_serverAdress, 'api/$route');
+        : Uri.https(_serverAdress, 'api/$route',param);
   }
 }
 

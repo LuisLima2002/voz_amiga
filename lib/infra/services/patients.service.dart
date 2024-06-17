@@ -1,12 +1,7 @@
 import 'dart:convert';
-import 'package:file_picker/file_picker.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
-import 'package:mime/mime.dart';
 
-import 'package:http/http.dart' as http;
 import 'package:voz_amiga/dto/patient.dto.dart';
-import 'package:voz_amiga/dto/result.dto.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/utils/paginated.dart';
 
@@ -18,7 +13,13 @@ class PatientsService {
     int? page,
     int? pageSize,
   }) async {
-    final response = await ApiClient.get(_frag);
+    final response = await ApiClient.get(_frag,
+      params: {
+        "filter": filter ?? "",
+        "page": page.toString(),
+        "pageSize": pageSize.toString(),
+      }
+      );
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body);
       return (
@@ -39,6 +40,18 @@ class PatientsService {
       );
     }
   }
+
+  static Future<(dynamic, PatientDTO?)> getPatient(String patientId) async {
+  final String uri = '$_frag/$patientId';
+  final response = await ApiClient.get(uri);
+  
+  if (response.statusCode == 200) {
+    final body = jsonDecode(response.body);
+    return (null, PatientDTO.fromJSON(body));
+  } else {
+    return (jsonDecode(response.body),null);
+  }
+}
 
   static Future<int> save({
     required String name,
@@ -66,4 +79,29 @@ class PatientsService {
       rethrow;
     }
   }
+
+static Future<int> update({
+    required PatientDTO patient
+  }) async {
+    try {
+      var response = await ApiClient.put(
+      _frag,
+      patient.toJson()
+    );
+      return response.statusCode;
+    } catch (e) {
+      print('at saving: $e');
+      rethrow;
+    }
+  }
+  
+  static Future<int> delete({
+    required String id,
+   }) async {
+    final String uri = '$_frag/$id';
+    final response = await ApiClient.delete(uri);
+    
+    return response.statusCode;
+  }
+
 }

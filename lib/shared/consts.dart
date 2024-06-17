@@ -5,12 +5,12 @@ import 'package:voz_amiga/shared/app.routes.dart';
 class RouteNames {
   static const String login = '/login';
   static const String home = '/';
-  static const String homePatient= '/homePatient';
+  static const String homePatient= '/home/Patient';
   static const String activityList = '/activity';
   static const String exercisesList = '/exercises';
   static const String newActivity = '/activity/new/form';
-  static const String patientsList= '/pacient';
-  static const String newPatient= '/pacient/new/form';
+  static const String patientsList= '/patient';
+  static const String newPatient= '/patient/new/form';
   static String editPatient(String id) => '/patient/$id/form';
   static String patient(String id) => '/patient/$id';
   static String editActivity(String id) => '/activity/$id/form';

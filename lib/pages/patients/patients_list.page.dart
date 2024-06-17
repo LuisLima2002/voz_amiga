@@ -92,7 +92,9 @@ class _PatientsListPageState extends State<PatientsListPage> {
             padding: const EdgeInsets.symmetric(horizontal: 5),
             child: TextFormField(
               controller: filterController,
-              // onChanged: (value) => {_fetchPage(0)},
+              onChanged: (text) {
+                _pagingController.refresh();
+              },
               decoration: const InputDecoration(
                 hintText: 'Busque por nome',
               ),
@@ -116,7 +118,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
                 noItemsFoundIndicatorBuilder: (context) {
                   return const Center(
                     child: Text(
-                      "Algo deu errado!\nTente novamente",
+                      "Não há nenhum Paciente",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Color.fromARGB(255, 55, 170, 223),
@@ -169,7 +171,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
             label: 'Editar',
             icon: Icons.edit_outlined,
             onPressed: (context) {
-              // context.go(RouteNames.editActivity(item.id));
+              context.go(RouteNames.editPatient(item.id));
             },
           ),
         ],
@@ -181,9 +183,9 @@ class _PatientsListPageState extends State<PatientsListPage> {
    Widget _title(BuildContext context, PatientDTO item) {
     return ListTile(
       onTap: () {
-        // context.go(RouteNames.activity(item.id));
+        context.go(RouteNames.patient(item.id));
       },
-      trailing: _trailing(context),
+      trailing: _trailing(context, item.id),
       title: Text(
         item.name,
         style: const TextStyle(
@@ -199,7 +201,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
     );
   }
 
-  Widget? _trailing(BuildContext context) {
+  Widget? _trailing(BuildContext context, String id) {
     return MediaQuery.of(context).screenType == ScreenType.tablet ||
             MediaQuery.of(context).screenType == ScreenType.desktop
         ? SizedBox(
@@ -210,19 +212,14 @@ class _PatientsListPageState extends State<PatientsListPage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () {},
+                 onPressed: () {
+                    context.go(RouteNames.editPatient(id));
+                  },
                   icon: const Icon(
                     Icons.edit_document,
                     color: Colors.blueAccent,
                   ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                  ),
-                ),
+                )
               ],
             ),
           )
