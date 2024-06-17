@@ -25,12 +25,12 @@ class _NewPacientePageState extends State<NewPacientePage> {
   final TextEditingController _cpfResponsavelController =
       TextEditingController();
 
-  ClientHttp? client;
+  ApiClient? client;
 
   @override
   void initState() {
     super.initState();
-    client = Provider.of<ClientHttp>(context, listen: false);
+    client = Provider.of<ApiClient>(context, listen: false);
   }
 
   void onAdd() {}

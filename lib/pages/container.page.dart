@@ -20,8 +20,6 @@ class _ContainerPageState extends State<ContainerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return isLogged
-        ? const NewPacientePage()
-        : LoginPage(changeLogState: changeLogState);
+    return isLogged ? const NewPacientePage() : const LoginPage();
   }
 }
