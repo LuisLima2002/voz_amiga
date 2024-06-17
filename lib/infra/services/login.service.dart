@@ -20,7 +20,7 @@ class LoginService {
     return token != null && token.isNotEmpty;
   }
 
-  Future<Result> login(String? user, String? password) async {
+  Future<ResultWithBody> login(String? user, String? password) async {
     var response = await ApiClient.post(
       _path,
       {
@@ -38,7 +38,6 @@ class LoginService {
     if (!result.hasErrors) {
       await _storage.write(key: 'jwt', value: result.content.token);
     }
-
-    return ResultWithBody.of(true);
+    return result;
   }
 }

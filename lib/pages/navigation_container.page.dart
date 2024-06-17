@@ -120,6 +120,11 @@ class NavigationContainer extends StatelessWidget {
         selectedIcon: Icon(Icons.fitness_center_outlined),
         label: 'Exercícios',
       ),
+      NavigationDestination(
+        icon: Icon(Icons.people),
+        selectedIcon: Icon(Icons.people_alt_outlined),
+        label: 'Pacientes',
+      ),
     ];
   }
 

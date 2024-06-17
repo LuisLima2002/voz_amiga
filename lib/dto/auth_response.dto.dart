@@ -6,5 +6,5 @@ class AuthResponseDTO {
   AuthResponseDTO.fromJSON(Map<String, dynamic> data)
       : token = data['token'],
         resetPassword = data['updateCredential'] ?? false,
-        isPatient = data['isPatiten'] ?? true;
+        isPatient = data['isPatient'] ?? true;
 }

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 // import 'package:provider/provider.dart';
 // import 'package:voz_amiga/core/login.service.dart';
 import 'package:voz_amiga/infra/services/login.service.dart';
+import 'package:voz_amiga/shared/consts.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -65,7 +66,11 @@ class _LoginPageState extends State<LoginPage> {
         _errors = res.errors;
       });
     } else if (context.mounted) {
-      context.go('/');
+      if(res.content.isPatient){
+        context.go(RouteNames.homePatient);
+      }else{
+        context.go(RouteNames.home);
+      }
     }
   }
 
