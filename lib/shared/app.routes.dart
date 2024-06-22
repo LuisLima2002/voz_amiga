@@ -7,6 +7,11 @@ import 'package:voz_amiga/pages/asPatient/profile.page.dart';
 import 'package:voz_amiga/pages/patients/patient_form.page.dart';
 import 'package:voz_amiga/pages/patients/patient_viewer.dart';
 import 'package:voz_amiga/pages/patients/patients_list.page.dart';
+import 'package:voz_amiga/pages/professionals/professional_form.page.dart';
+import 'package:voz_amiga/pages/professionals/professional_viewer.dart';
+import 'package:voz_amiga/pages/professionals/professionals_list.page.dart';
+import 'package:voz_amiga/pages/settings/changePassword.page.dart';
+import 'package:voz_amiga/pages/settings/settings.page.dart';
 // other
 import 'package:voz_amiga/shared/consts.dart';
 // pages
@@ -32,7 +37,7 @@ class AppRouteConfig {
         final res = await LoginService().isLoggedIn();
         if (!res) {
           return RouteNames.login;
-        }  
+        }
         return null;
       },
     );
@@ -50,6 +55,13 @@ class AppRouteConfig {
     );
     final pacientsPageKey = GlobalKey<NavigatorState>(
       debugLabel: 'pacientsPageNavigation',
+    );
+    final professionalsPageKey = GlobalKey<NavigatorState>(
+      debugLabel: 'profissionalsPageNavigation',
+    );
+
+    final settingsPageKey = GlobalKey<NavigatorState>(
+      debugLabel: 'settingsPageNavigation',
     );
 
     return [
@@ -115,6 +127,38 @@ class AppRouteConfig {
             ],
           ),
           StatefulShellBranch(
+            navigatorKey: professionalsPageKey,
+            routes: [
+              GoRoute(
+                name: 'Profissionais',
+                path: RouteNames.professionalsList,
+                builder: (context, state) {
+                  return const ProfessionalsListPage();
+                },
+                routes: [
+                  GoRoute(
+                    name: 'Profissional',
+                    path: ':id',
+                    builder: (context, state) {
+                      return ProfessionalViewerPage(
+                        id: state.pathParameters['id']!,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    name: 'Novo profissional',
+                    path: ':id/form',
+                    builder: (context, state) {
+                      return ProfessionalFormPage(
+                        id: state.pathParameters['id'],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
             navigatorKey: pacientsPageKey,
             routes: [
               GoRoute(
@@ -144,6 +188,22 @@ class AppRouteConfig {
                   ),
                 ],
               ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: settingsPageKey,
+            routes: [
+              GoRoute(
+                  name: 'Ajustes',
+                  path: RouteNames.settings,
+                  builder: (context, state) => const SettingsPage(),
+                  routes: [
+                    GoRoute(
+                      name: 'Redefinir Senha',
+                      path: "changePassword",
+                      builder: (context, state) => const ChangePassowrdPage(),
+                    )
+                  ]),
             ],
           )
         ],

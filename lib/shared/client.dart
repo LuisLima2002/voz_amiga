@@ -18,7 +18,7 @@ class ApiClient {
     return response;
   }
 
-  static Future<http.Response> put(String route, Object body) async {
+  static Future<http.Response> put(String route, Object? body) async {
     final uri = _getUri(route);
     final response = await http.put(
       uri,

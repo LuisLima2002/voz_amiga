@@ -123,7 +123,17 @@ class NavigationContainer extends StatelessWidget {
       NavigationDestination(
         icon: Icon(Icons.people),
         selectedIcon: Icon(Icons.people_alt_outlined),
-        label: 'Pacientes',
+        label: 'Profi.',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.healing),
+        selectedIcon: Icon(Icons.healing_outlined),
+        label: 'Paciente',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.settings),
+        selectedIcon: Icon(Icons.settings_outlined),
+        label: 'Ajustes',
       ),
     ];
   }
