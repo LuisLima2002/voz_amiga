@@ -25,11 +25,8 @@ class _PatientViewerPageState extends State<PatientViewerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detalhes do paciente'),
-      ),
-      body: FutureBuilder<(dynamic, PatientDTO?)>(
+    return SingleChildScrollView(
+      child: FutureBuilder<(dynamic, PatientDTO?)>(
         future: _patientFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

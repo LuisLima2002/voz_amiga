@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:voz_amiga/infra/services/login.service.dart';
+import 'package:voz_amiga/pages/asPatient/profile.page.dart';
 import 'package:voz_amiga/pages/patients/patient_form.page.dart';
 import 'package:voz_amiga/pages/patients/patient_viewer.dart';
 import 'package:voz_amiga/pages/patients/patients_list.page.dart';
@@ -25,7 +26,7 @@ class AppRouteConfig {
   static GoRouter getRouterConfig() {
     return GoRouter(
       navigatorKey: rootNavigatorKey,
-      initialLocation: RouteNames.newActivity,
+      initialLocation: RouteNames.home,
       routes: _getAplicationRoutes(),
       redirect: (context, state) async {
         final res = await LoginService().isLoggedIn();
@@ -155,7 +156,7 @@ class AppRouteConfig {
       GoRoute(
         name: 'Home Paciente',
         path: RouteNames.homePatient,
-        builder: (context, state) => const Text("Vocé está logado como paciente"),
+        builder: (context, state) => const NavigationPatientContainer(navigationShell: null),
       ),
     ];
   }

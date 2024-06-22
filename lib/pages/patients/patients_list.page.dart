@@ -22,15 +22,9 @@ class _PatientsListPageState extends State<PatientsListPage> {
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener((pageKey) {
+    PatientsService.pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
-  }
-
-  @override
-  void dispose() {
-    _pagingController.dispose();
-    super.dispose();
   }
 
   @override
@@ -54,9 +48,6 @@ class _PatientsListPageState extends State<PatientsListPage> {
 
   final _numberOfPostsPerRequest = 10;
 
-  final PagingController<int, PatientDTO> _pagingController =
-      PagingController(firstPageKey: 0);
-
   Future<void> _fetchPage(int pageKey) async {
     try {
       final (error, patients) = await PatientsService.getPatients(
@@ -67,24 +58,24 @@ class _PatientsListPageState extends State<PatientsListPage> {
       final isLastPage =
           patients.total <= patients.itensPerPage * patients.page;
       if (error != null) {
-        _pagingController.error = error;
+        PatientsService.pagingController.error = error;
       } else {
         if (isLastPage) {
-          _pagingController.appendLastPage(patients.result);
+          PatientsService.pagingController.appendLastPage(patients.result);
         } else {
           final nextPageKey = pageKey + 1;
-          _pagingController.appendPage(patients.result, nextPageKey);
+          PatientsService.pagingController.appendPage(patients.result, nextPageKey);
         }
       }
     } catch (e) {
       print("error --> $e");
-      _pagingController.error = e;
+      PatientsService.pagingController.error = e;
     }
   }
 
   Widget _body(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => Future.sync(() => _pagingController.refresh()),
+      onRefresh: () => Future.sync(() => PatientsService.pagingController.refresh()),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -93,7 +84,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
             child: TextFormField(
               controller: filterController,
               onChanged: (text) {
-                _pagingController.refresh();
+                PatientsService.pagingController.refresh();
               },
               decoration: const InputDecoration(
                 hintText: 'Busque por nome',
@@ -112,7 +103,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
                   ),
                 );
               },
-              pagingController: _pagingController,
+              pagingController: PatientsService.pagingController,
               builderDelegate: PagedChildBuilderDelegate<PatientDTO>(
                 itemBuilder: _buildTile,
                 noItemsFoundIndicatorBuilder: (context) {

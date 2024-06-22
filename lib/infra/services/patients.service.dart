@@ -4,10 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:voz_amiga/dto/patient.dto.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/utils/paginated.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class PatientsService {
   static const String _frag = 'patient';
-
+  static PagingController<int, PatientDTO> pagingController = PagingController(firstPageKey: 0);
   static Future<(dynamic, Paginated<PatientDTO>)> getPatients({
     String? filter,
     int? page,
@@ -73,6 +74,7 @@ class PatientsService {
         "responsibleDocument": responsibleDocument
       }
     );
+        pagingController.refresh();
       return response.statusCode;
     } catch (e) {
       print('at saving: $e');
@@ -88,6 +90,7 @@ static Future<int> update({
       _frag,
       patient.toJson()
     );
+      pagingController.refresh();
       return response.statusCode;
     } catch (e) {
       print('at saving: $e');
@@ -100,6 +103,7 @@ static Future<int> update({
    }) async {
     final String uri = '$_frag/$id';
     final response = await ApiClient.delete(uri);
+    pagingController.refresh();
     
     return response.statusCode;
   }
