@@ -15,11 +15,13 @@ class ProfessionalsService {
     String? filter,
     int? page,
     int? pageSize,
+    String? orderBy
   }) async {
     final response = await ApiClient.get(_frag, params: {
       "filter": filter ?? "",
       "page": page.toString(),
       "pageSize": pageSize.toString(),
+      "orderBy": orderBy.toString(),
     });
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body);

@@ -17,8 +17,8 @@ class ProfessionalsListPage extends StatefulWidget {
 }
 
 class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
-  
-  final filterController  = TextEditingController();
+  final filterController = TextEditingController();
+  String _orderBy = "";
   @override
   void initState() {
     super.initState();
@@ -54,9 +54,9 @@ class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
         filter: filterController.text,
         page: pageKey,
         pageSize: _numberOfPostsPerRequest,
+        orderBy: _orderBy
       );
-      final isLastPage =
-          items.total <= items.itensPerPage * items.page;
+      final isLastPage = items.total <= items.itensPerPage * items.page;
       if (error != null) {
         ProfessionalsService.pagingController.error = error;
       } else {
@@ -64,7 +64,8 @@ class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
           ProfessionalsService.pagingController.appendLastPage(items.result);
         } else {
           final nextPageKey = pageKey + 1;
-          ProfessionalsService.pagingController.appendPage(items.result, nextPageKey);
+          ProfessionalsService.pagingController
+              .appendPage(items.result, nextPageKey);
         }
       }
     } catch (e) {
@@ -73,22 +74,57 @@ class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
     }
   }
 
+
+
   Widget _body(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => Future.sync(() => ProfessionalsService.pagingController.refresh()),
+      onRefresh: () =>
+          Future.sync(() => ProfessionalsService.pagingController.refresh()),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: TextFormField(
-              controller: filterController,
-              onChanged: (text) {
-                ProfessionalsService.pagingController.refresh();
-              },
-              decoration: const InputDecoration(
-                hintText: 'Busque por nome',
-              ),
+            child: Row(
+              children: <Widget>[
+                Flexible(
+                  flex: 8,
+                  child: TextFormField(
+                    controller: filterController,
+                    onChanged: (text) {
+                      ProfessionalsService.pagingController.refresh();
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Busque por nome',
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  child: DropdownButtonFormField(
+                      decoration:
+                          const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 5)),
+                      hint: const Text("Ordenar"),
+                      items: ['Data de criação','Nome', 'Email']
+                          .map((String unit) => DropdownMenuItem<String>(
+                              value: unit, child: Text(unit)))
+                          .toList(),
+                      onChanged: (value) => setState(() {
+                        switch(value){
+                          case "Nome":
+                          _orderBy="name";
+                          break;
+                          case "Email":
+                          _orderBy="email";
+                          break;
+                          default:
+                          _orderBy="";
+                          break;
+                        }
+                        ProfessionalsService.pagingController.refresh();
+                      })),
+                )
+              ],
             ),
           ),
           SlidableAutoCloseBehavior(
@@ -167,11 +203,11 @@ class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
           ),
         ],
       ),
-      child: _title(context,item),
+      child: _title(context, item),
     );
   }
 
-   Widget _title(BuildContext context, ProfessionalDTO item) {
+  Widget _title(BuildContext context, ProfessionalDTO item) {
     return ListTile(
       onTap: () {
         context.go(RouteNames.professional(item.id));
@@ -203,7 +239,7 @@ class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 IconButton(
-                 onPressed: () {
+                  onPressed: () {
                     context.go(RouteNames.editProfessional(id));
                   },
                   icon: const Icon(
@@ -216,5 +252,4 @@ class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
           )
         : null;
   }
-
 }

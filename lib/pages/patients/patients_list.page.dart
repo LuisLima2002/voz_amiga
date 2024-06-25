@@ -19,6 +19,7 @@ class PatientsListPage extends StatefulWidget {
 class _PatientsListPageState extends State<PatientsListPage> {
   
   final filterController  = TextEditingController();
+  String _orderBy= "";
   @override
   void initState() {
     super.initState();
@@ -54,6 +55,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
         filter: filterController.text,
         page: pageKey,
         pageSize: _numberOfPostsPerRequest,
+        orderBy: _orderBy
       );
       final isLastPage =
           patients.total <= patients.itensPerPage * patients.page;
@@ -81,14 +83,49 @@ class _PatientsListPageState extends State<PatientsListPage> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: TextFormField(
-              controller: filterController,
-              onChanged: (text) {
-                PatientsService.pagingController.refresh();
-              },
-              decoration: const InputDecoration(
-                hintText: 'Busque por nome',
-              ),
+            child: Row(
+              children: <Widget>[
+                Flexible(
+                  flex: 8,
+                  child: TextFormField(
+                    controller: filterController,
+                    onChanged: (text) {
+                      PatientsService.pagingController.refresh();
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Busque por nome',
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
+                  child: DropdownButtonFormField(
+                      decoration:
+                          const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 5)),
+                      hint: const Text("Ordenar"),
+                      items: ['Data de criação','Nome', 'Nome do responsável', 'Data de nascimento']
+                          .map((String unit) => DropdownMenuItem<String>(
+                              value: unit, child: Text(unit)))
+                          .toList(),
+                      onChanged: (value) => setState(() {
+                        switch(value){
+                          case "Nome":
+                          _orderBy="name";
+                          break;
+                          case "Nome do responsável":
+                          _orderBy="nameResponsible";
+                          break;
+                          case "Data de nascimento":
+                          _orderBy="birthdate";
+                          break;
+                          default:
+                          _orderBy="";
+                          break;
+                        }
+                        PatientsService.pagingController.refresh();
+                      })),
+                )
+              ],
             ),
           ),
           SlidableAutoCloseBehavior(
