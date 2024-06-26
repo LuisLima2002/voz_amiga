@@ -16,18 +16,19 @@ class ActivitiesService {
     int? page,
     int? pageSize,
   }) async {
-    final response = await ApiClient.get(_frag);
+    final params = <String, String>{
+      'filter': filter ?? '',
+      'page': page.toString(),
+      'pageSize': pageSize.toString(),
+    };
+    final response = await ApiClient.get(_frag, params: params);
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body);
       return (
         null,
         Paginated.fromJson(
           response: body,
-          parseList: (l) => l.map(
-            (d) {
-              return ActivityDTO.fromJSON(d);
-            },
-          ).toList(),
+          parseList: (l) => l.map((d) => ActivityDTO.fromJSON(d)).toList(),
         ),
       );
     } else {
@@ -44,11 +45,14 @@ class ActivitiesService {
     required int points,
     required PlatformFile file,
   }) async {
-    final uri = Uri.parse('https://192.168.0.6:5001/api/$_frag');
+    final uri = ApiClient.getUri(_frag);
     var request = http.MultipartRequest('POST', uri);
 
-    request.fields.addAll(
-        {'title': title, 'description': description, 'points': '$points'});
+    request.fields.addAll({
+      'title': title,
+      'description': description,
+      'points': '$points',
+    });
     final multipartFile = await http.MultipartFile.fromPath(
       'media',
       file.path!,
@@ -59,7 +63,63 @@ class ActivitiesService {
       final response = await request.send();
       return response.statusCode;
     } catch (e) {
-      print('at saving: $e');
+      print(e);
+      rethrow;
+    }
+  }
+
+  static Future<(dynamic, ActivityDTO?)> getActivity(String id) async {
+    try {
+      final response = await ApiClient.get('$_frag/$id');
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        print(body);
+        return (null, ActivityDTO.fromJSON(body));
+      }
+      return ('Não encontrado', null);
+    } catch (e) {
+      print(e);
+      return ('Falha ao se comunicar com o servidor', null);
+    }
+  }
+
+  static Future delete(String id) async {
+    try {
+      await ApiClient.delete('$_frag/$id');
+    } catch (e) {
+      print(e);
+      return 'Falha ao se comunicar com o servidor';
+    }
+  }
+
+  static Future<int> update(
+    String id, {
+    required String title,
+    required String description,
+    required int points,
+    required PlatformFile? file,
+  }) async {
+    final uri = ApiClient.getUri('$_frag/$id');
+    var request = http.MultipartRequest('PUT', uri);
+    print(uri);
+    request.fields.addAll({
+      'title': title,
+      'description': description,
+      'points': '$points',
+    });
+    if (file != null) {
+      final multipartFile = await http.MultipartFile.fromPath(
+        'media',
+        file.path!,
+        contentType: MediaType.parse(lookupMimeType(file.path!) ?? ""),
+      );
+      request.files.add(multipartFile);
+    }
+    try {
+      final response = await request.send();
+      return response.statusCode;
+    } catch (e) {
+      print(e);
       rethrow;
     }
   }

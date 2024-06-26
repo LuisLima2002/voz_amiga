@@ -1,14 +1,14 @@
-import 'package:async/async.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
 // import 'package:voz_amiga/components/video_player.dart';
 import 'package:voz_amiga/infra/services/activities.service.dart';
 
 class ActivityFormPage extends StatefulWidget {
   final String? id;
-  const ActivityFormPage({super.key, this.id = '0'});
+  const ActivityFormPage({super.key, this.id = 'new'});
 
   @override
   State<ActivityFormPage> createState() => _ActivityFormPageState();
@@ -19,6 +19,9 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
   final _formKey = GlobalKey<FormState>(debugLabel: 'activityForm');
   late bool _fileError;
   PlatformFile? _file;
+  String? _fileName;
+  String? _mime;
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +31,45 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
       'description': TextEditingController(),
       'points': TextEditingController(),
     };
+    if (widget.id != 'new') {
+      ActivitiesService.getActivity(widget.id!).then((result) {
+        if (result.$1 != null) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(result.$1),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    child: const Text('Ok'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else if (result.$2 != null) {
+          final activity = result.$2!;
+          setState(() {
+            _controllers = <String, TextEditingController>{
+              'title': TextEditingController(text: activity.title),
+              'description': TextEditingController(text: activity.description),
+              'points': TextEditingController(text: activity.points.toString()),
+            };
+            _fileName = activity.data;
+            _mime = activity.mimeType;
+          });
+        }
+      });
+    } else {
+      _controllers = <String, TextEditingController>{
+        'title': TextEditingController(),
+        'description': TextEditingController(),
+        'points': TextEditingController(),
+      };
+    }
   }
 
   @override
@@ -58,7 +100,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
               // Description
               _descriptionFormField,
               const SizedBox(height: 10),
-              _file == null
+              _file == null && _fileName == null
                   ? _fileError
                       ? const SizedBox(
                           height: 20,
@@ -83,6 +125,8 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                       setState(() {
                         _fileError = false;
                         _file = result.files[0];
+                        _fileName = null;
+                        _mime = null;
                       });
                     }
                   },
@@ -123,20 +167,48 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
   }
 
   Future<void> _save() async {
-    if (_file == null) {
+    if (_file == null && _fileName == null) {
       setState(() {
         _fileError = true;
       });
     }
-    if (_formKey.currentState!.validate() && _file != null) {
+    if (_formKey.currentState!.validate() &&
+        (_file != null || _fileName != null && widget.id != 'new')) {
       try {
-        var res = await ActivitiesService.save(
-          title: _controllers['title']!.text,
-          description: _controllers['description']!.text,
-          points: int.parse(_controllers['points']!.text),
-          file: _file!,
-        );
+        var res = widget.id == 'new'
+            ? await ActivitiesService.save(
+                title: _controllers['title']!.text,
+                description: _controllers['description']!.text,
+                points: int.parse(_controllers['points']!.text),
+                file: _file!,
+              )
+            : await ActivitiesService.update(
+                widget.id!,
+                title: _controllers['title']!.text,
+                description: _controllers['description']!.text,
+                points: int.parse(_controllers['points']!.text),
+                file: _file,
+              );
+
         if (res > 0) {
+          if (context.mounted) {
+            await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: const Text('Salvo com sucesso!'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Ok'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
           setState(() {
             _formKey.currentState?.reset();
             _controllers.forEach((k, v) {
@@ -144,6 +216,8 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
             });
             _file = null;
             _fileError = false;
+            _fileName = null;
+            _mime = null;
           });
         }
       } catch (e) {
@@ -301,7 +375,8 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
   }
 
   Widget get _selectedFile {
-    final mimeType = lookupMimeType(_file!.path.toString());
+    final mimeType =
+        _fileName == null ? lookupMimeType(_file!.path.toString()) : _mime;
     Icon fileIcon = switch (mimeType?.split('/')[0]) {
       'video' => const Icon(Icons.video_library_outlined),
       'image' => const Icon(Icons.photo_outlined),
@@ -312,10 +387,13 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             fileIcon,
             Text(
-              _file!.name,
+              _fileName?.substring(0, 33) ?? _file!.name,
+              overflow: TextOverflow.ellipsis,
+              softWrap: true,
               style: const TextStyle(
                 fontSize: 20,
                 color: Colors.grey,

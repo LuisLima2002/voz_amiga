@@ -20,7 +20,7 @@ class AppRouteConfig {
   static GoRouter getRouterConfig() {
     return GoRouter(
       navigatorKey: rootNavigatorKey,
-      initialLocation: RouteNames.newActivity,
+      initialLocation: RouteNames.activityList,
       routes: _getAplicationRoutes(),
     );
   }
