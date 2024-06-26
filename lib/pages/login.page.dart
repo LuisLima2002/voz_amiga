@@ -24,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   final _emailRegex = RegExp(
-    r"^[a-zA-Z](?:\.?[\w]+){2,}@(?:[a-zA-Z]{2,3}\.){0,2}(?:[\w]{3,20})(?:\.[a-zA-Z]{2,5}){1,2}",
+    r"^[a-zA-Z](?:\.?[\w]+){1,}@(?:[a-zA-Z]{2,3}\.){0,2}(?:[\w]{3,20})(?:\.[a-zA-Z]{2,5}){1,2}",
   );
 
   @override

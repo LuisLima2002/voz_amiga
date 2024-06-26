@@ -11,6 +11,12 @@ class RouteNames {
   static const String newActivity = '/activity/new/form';
   static const String patientsList= '/patient';
   static const String newPatient= '/patient/new/form';
+  static const String professionalsList= '/professional';
+  static const String newProfessional= '/professional/new/form';
+  static const String settings = '/settings';
+  static const String changePassword = '/settings/changePassword';
+  static String editProfessional(String id) => '/professional/$id/form';
+  static String professional(String id) => '/professional/$id';
   static String editPatient(String id) => '/patient/$id/form';
   static String patient(String id) => '/patient/$id';
   static String editActivity(String id) => '/activity/$id/form';

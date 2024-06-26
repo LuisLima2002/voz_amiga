@@ -4,26 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:voz_amiga/dto/patient.dto.dart';
-import 'package:voz_amiga/infra/services/patients.service.dart';
+import 'package:voz_amiga/dto/professional.dto.dart';
+import 'package:voz_amiga/infra/services/professionals.service.dart';
 import 'package:voz_amiga/shared/consts.dart';
 import 'package:voz_amiga/utils/platform_utils.dart';
 
-class PatientsListPage extends StatefulWidget {
-  const PatientsListPage({super.key});
+class ProfessionalsListPage extends StatefulWidget {
+  const ProfessionalsListPage({super.key});
 
   @override
-  State<PatientsListPage> createState() => _PatientsListPageState();
+  State<ProfessionalsListPage> createState() => _ProfessionalsListPageState();
 }
 
-class _PatientsListPageState extends State<PatientsListPage> {
-  
-  final filterController  = TextEditingController();
-  String _orderBy= "";
+class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
+  final filterController = TextEditingController();
+  String _orderBy = "";
   @override
   void initState() {
     super.initState();
-    PatientsService.pagingController.addPageRequestListener((pageKey) {
+    ProfessionalsService.pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
   }
@@ -36,7 +35,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.go(RouteNames.newPatient);
+          context.go(RouteNames.newProfessional);
         },
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -51,33 +50,36 @@ class _PatientsListPageState extends State<PatientsListPage> {
 
   Future<void> _fetchPage(int pageKey) async {
     try {
-      final (error, patients) = await PatientsService.getPatients(
+      final (error, items) = await ProfessionalsService.getProfessionals(
         filter: filterController.text,
         page: pageKey,
         pageSize: _numberOfPostsPerRequest,
         orderBy: _orderBy
       );
-      final isLastPage =
-          patients.total <= patients.itensPerPage * patients.page;
+      final isLastPage = items.total <= items.itensPerPage * items.page;
       if (error != null) {
-        PatientsService.pagingController.error = error;
+        ProfessionalsService.pagingController.error = error;
       } else {
         if (isLastPage) {
-          PatientsService.pagingController.appendLastPage(patients.result);
+          ProfessionalsService.pagingController.appendLastPage(items.result);
         } else {
           final nextPageKey = pageKey + 1;
-          PatientsService.pagingController.appendPage(patients.result, nextPageKey);
+          ProfessionalsService.pagingController
+              .appendPage(items.result, nextPageKey);
         }
       }
     } catch (e) {
       print("error --> $e");
-      PatientsService.pagingController.error = e;
+      ProfessionalsService.pagingController.error = e;
     }
   }
 
+
+
   Widget _body(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => Future.sync(() => PatientsService.pagingController.refresh()),
+      onRefresh: () =>
+          Future.sync(() => ProfessionalsService.pagingController.refresh()),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -90,7 +92,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
                   child: TextFormField(
                     controller: filterController,
                     onChanged: (text) {
-                      PatientsService.pagingController.refresh();
+                      ProfessionalsService.pagingController.refresh();
                     },
                     decoration: const InputDecoration(
                       hintText: 'Busque por nome',
@@ -103,7 +105,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
                       decoration:
                           const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 5)),
                       hint: const Text("Ordenar"),
-                      items: ['Data de criação','Nome', 'Nome do responsável', 'Data de nascimento']
+                      items: ['Data de criação','Nome', 'Email']
                           .map((String unit) => DropdownMenuItem<String>(
                               value: unit, child: Text(unit)))
                           .toList(),
@@ -112,17 +114,14 @@ class _PatientsListPageState extends State<PatientsListPage> {
                           case "Nome":
                           _orderBy="name";
                           break;
-                          case "Nome do responsável":
-                          _orderBy="nameResponsible";
-                          break;
-                          case "Data de nascimento":
-                          _orderBy="birthdate";
+                          case "Email":
+                          _orderBy="email";
                           break;
                           default:
                           _orderBy="";
                           break;
                         }
-                        PatientsService.pagingController.refresh();
+                        ProfessionalsService.pagingController.refresh();
                       })),
                 )
               ],
@@ -130,7 +129,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
           ),
           SlidableAutoCloseBehavior(
             closeWhenOpened: true,
-            child: PagedListView<int, PatientDTO>.separated(
+            child: PagedListView<int, ProfessionalDTO>.separated(
               shrinkWrap: true,
               separatorBuilder: (context, index) {
                 return SizedBox(
@@ -140,13 +139,13 @@ class _PatientsListPageState extends State<PatientsListPage> {
                   ),
                 );
               },
-              pagingController: PatientsService.pagingController,
-              builderDelegate: PagedChildBuilderDelegate<PatientDTO>(
+              pagingController: ProfessionalsService.pagingController,
+              builderDelegate: PagedChildBuilderDelegate<ProfessionalDTO>(
                 itemBuilder: _buildTile,
                 noItemsFoundIndicatorBuilder: (context) {
                   return const Center(
                     child: Text(
-                      "Não há nenhum Paciente",
+                      "Não há nenhum Profissional",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Color.fromARGB(255, 55, 170, 223),
@@ -189,7 +188,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
     );
   }
 
-  Widget _buildTile(BuildContext context, PatientDTO item, int index) {
+  Widget _buildTile(BuildContext context, ProfessionalDTO item, int index) {
     return Slidable(
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
@@ -199,19 +198,19 @@ class _PatientsListPageState extends State<PatientsListPage> {
             label: 'Editar',
             icon: Icons.edit_outlined,
             onPressed: (context) {
-              context.go(RouteNames.editPatient(item.id));
+              context.go(RouteNames.editProfessional(item.id));
             },
           ),
         ],
       ),
-      child: _title(context,item),
+      child: _title(context, item),
     );
   }
 
-   Widget _title(BuildContext context, PatientDTO item) {
+  Widget _title(BuildContext context, ProfessionalDTO item) {
     return ListTile(
       onTap: () {
-        context.go(RouteNames.patient(item.id));
+        context.go(RouteNames.professional(item.id));
       },
       trailing: _trailing(context, item.id),
       title: Text(
@@ -222,7 +221,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
         ),
       ),
       subtitle: Text(
-        item.cpfPatient,
+        item.email,
         overflow: TextOverflow.ellipsis,
         maxLines: 2,
       ),
@@ -240,8 +239,8 @@ class _PatientsListPageState extends State<PatientsListPage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 IconButton(
-                 onPressed: () {
-                    context.go(RouteNames.editPatient(id));
+                  onPressed: () {
+                    context.go(RouteNames.editProfessional(id));
                   },
                   icon: const Icon(
                     Icons.edit_document,
@@ -253,5 +252,4 @@ class _PatientsListPageState extends State<PatientsListPage> {
           )
         : null;
   }
-
 }
