@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:voz_amiga/infra/services/activities.service.dart';
 import 'package:voz_amiga/infra/services/login.service.dart';
+import 'package:voz_amiga/infra/services/patients.service.dart';
 import 'package:voz_amiga/shared/client.dart';
 
 class AppProvider {
@@ -19,6 +20,10 @@ class AppProvider {
         Provider<LoginService>(
           create: (_) => LoginService(),
           key: const Key('loginServiceProvider'),
+        ),
+        Provider<PatientsService>(
+          create: (_) => PatientsService(),
+          key: const Key('patientServiceProvider'),
         )
       ],
       child: component,

@@ -10,6 +10,10 @@ class LoginService {
   static const _path = 'auth';
   static const _storage = FlutterSecureStorage();
 
+  static Future<void> saiFora() async {
+    await _storage.delete(key: 'jwt');
+  }
+
   static Future<String?> get giveMyToken async {
     final token = await _storage.read(key: 'jwt');
     return token;
@@ -20,7 +24,7 @@ class LoginService {
     return token != null && token.isNotEmpty;
   }
 
-  Future<Result> login(String? user, String? password) async {
+  Future<ResultWithBody> login(String? user, String? password) async {
     var response = await ApiClient.post(
       _path,
       {
@@ -38,7 +42,6 @@ class LoginService {
     if (!result.hasErrors) {
       await _storage.write(key: 'jwt', value: result.content.token);
     }
-
-    return ResultWithBody.of(true);
+    return result;
   }
 }

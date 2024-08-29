@@ -1,8 +1,19 @@
 // libs
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:voz_amiga/pages/exercises/exercise_form.page.dart';
 import 'package:voz_amiga/pages/exercises/exercise_viewer.dart';
+import 'package:voz_amiga/infra/services/login.service.dart';
+import 'package:voz_amiga/pages/asPatient/profile.page.dart';
+import 'package:voz_amiga/pages/patients/patient_form.page.dart';
+import 'package:voz_amiga/pages/patients/patient_viewer.dart';
+import 'package:voz_amiga/pages/patients/patients_list.page.dart';
+import 'package:voz_amiga/pages/professionals/professional_form.page.dart';
+import 'package:voz_amiga/pages/professionals/professional_viewer.dart';
+import 'package:voz_amiga/pages/professionals/professionals_list.page.dart';
+import 'package:voz_amiga/pages/settings/changePassword.page.dart';
+import 'package:voz_amiga/pages/settings/settings.page.dart';
 // other
 import 'package:voz_amiga/shared/consts.dart';
 // pages
@@ -22,8 +33,15 @@ class AppRouteConfig {
   static GoRouter getRouterConfig() {
     return GoRouter(
       navigatorKey: rootNavigatorKey,
-      initialLocation: RouteNames.activityList,
+      initialLocation: RouteNames.home,
       routes: _getAplicationRoutes(),
+      redirect: (context, state) async {
+        final res = await LoginService().isLoggedIn();
+        if (!res) {
+          return RouteNames.login;
+        }
+        return null;
+      },
     );
   }
 
@@ -36,6 +54,16 @@ class AppRouteConfig {
     );
     final exercisesPageKey = GlobalKey<NavigatorState>(
       debugLabel: 'exercisesPageNavigation',
+    );
+    final pacientsPageKey = GlobalKey<NavigatorState>(
+      debugLabel: 'pacientsPageNavigation',
+    );
+    final professionalsPageKey = GlobalKey<NavigatorState>(
+      debugLabel: 'profissionalsPageNavigation',
+    );
+
+    final settingsPageKey = GlobalKey<NavigatorState>(
+      debugLabel: 'settingsPageNavigation',
     );
 
     return [
@@ -55,7 +83,7 @@ class AppRouteConfig {
                 name: 'Home',
                 path: RouteNames.home,
                 builder: (context, state) => const HomePage(),
-              ),
+              )
             ],
           ),
           StatefulShellBranch(
@@ -119,12 +147,98 @@ class AppRouteConfig {
                   ]),
             ],
           ),
+          StatefulShellBranch(
+            navigatorKey: professionalsPageKey,
+            routes: [
+              GoRoute(
+                name: 'Profissionais',
+                path: RouteNames.professionalsList,
+                builder: (context, state) {
+                  return const ProfessionalsListPage();
+                },
+                routes: [
+                  GoRoute(
+                    name: 'Profissional',
+                    path: ':id',
+                    builder: (context, state) {
+                      return ProfessionalViewerPage(
+                        id: state.pathParameters['id']!,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    name: 'Novo profissional',
+                    path: ':id/form',
+                    builder: (context, state) {
+                      return ProfessionalFormPage(
+                        id: state.pathParameters['id'],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: pacientsPageKey,
+            routes: [
+              GoRoute(
+                name: 'Pacientes',
+                path: RouteNames.patientsList,
+                builder: (context, state) {
+                  return const PatientsListPage();
+                },
+                routes: [
+                  GoRoute(
+                    name: 'Paciente',
+                    path: ':id',
+                    builder: (context, state) {
+                      return PatientViewerPage(
+                        id: state.pathParameters['id']!,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    name: 'Novo paciente',
+                    path: ':id/form',
+                    builder: (context, state) {
+                      return PatientFormPage(
+                        id: state.pathParameters['id'],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: settingsPageKey,
+            routes: [
+              GoRoute(
+                  name: 'Ajustes',
+                  path: RouteNames.settings,
+                  builder: (context, state) => const SettingsPage(),
+                  routes: [
+                    GoRoute(
+                      name: 'Redefinir Senha',
+                      path: "changePassword",
+                      builder: (context, state) => const ChangePassowrdPage(),
+                    )
+                  ]),
+            ],
+          )
         ],
       ),
       GoRoute(
         name: 'Login',
         path: RouteNames.login,
         builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        name: 'Home Paciente',
+        path: RouteNames.homePatient,
+        builder: (context, state) =>
+            const NavigationPatientContainer(navigationShell: null),
       ),
     ];
   }

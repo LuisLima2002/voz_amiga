@@ -20,6 +20,19 @@ class ApiClient {
     return response;
   }
 
+  static Future<http.Response> put(String route, Object? body) async {
+    final uri = getUri(route);
+    final response = await http.put(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(body),
+    );
+
+    return response;
+  }
+
   static Future<http.Response> get(
     String route, {
     Map<String, String>? params,
@@ -48,19 +61,6 @@ class ApiClient {
     return route.startsWith('http')
         ? Uri.parse(route)
         : Uri.http(_serverAdress, 'api/$route', params);
-  }
-
-  static Future<http.Response> put(String route, Object body) async {
-    final uri = getUri(route);
-    final response = await http.put(
-      uri,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(body),
-    );
-
-    return response;
   }
 }
 

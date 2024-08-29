@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 // import 'package:provider/provider.dart';
 // import 'package:voz_amiga/core/login.service.dart';
 import 'package:voz_amiga/infra/services/login.service.dart';
+import 'package:voz_amiga/shared/consts.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   final _emailRegex = RegExp(
-    r"^[a-zA-Z](?:\.?[\w]+){2,}@(?:[a-zA-Z]{2,3}\.){0,2}(?:[\w]{3,20})(?:\.[a-zA-Z]{2,5}){1,2}",
+    r"^[a-zA-Z](?:\.?[\w]+){1,}@(?:[a-zA-Z]{2,3}\.){0,2}(?:[\w]{3,20})(?:\.[a-zA-Z]{2,5}){1,2}",
   );
 
   @override
@@ -65,7 +66,11 @@ class _LoginPageState extends State<LoginPage> {
         _errors = res.errors;
       });
     } else if (context.mounted) {
-      context.go('/');
+      if (res.content.isPatient) {
+        context.go(RouteNames.homePatient);
+      } else {
+        context.go(RouteNames.home);
+      }
     }
   }
 
@@ -189,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    "images/AlaskaCode.png",
+                    "assets/images/AlaskaCode.png",
                     fit: BoxFit.cover,
                   ),
                 ],

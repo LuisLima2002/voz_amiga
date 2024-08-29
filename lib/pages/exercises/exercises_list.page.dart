@@ -206,7 +206,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
         radius: 30,
         child: Icon(Icons.book),
       ),
-      trailing: _trailing(context),
+      trailing: _trailing(context, item),
       title: Text(
         item.title.capitalize(),
         style: const TextStyle(
@@ -223,7 +223,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
   }
 
   @pragma('vm:prefer-inline')
-  Widget? _trailing(BuildContext context) {
+  Widget? _trailing(BuildContext context, Exercise item) {
     return MediaQuery.of(context).screenType == ScreenType.tablet ||
             MediaQuery.of(context).screenType == ScreenType.desktop
         ? SizedBox(
@@ -234,14 +234,20 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.push(RouteNames.editExercise(item.id)).then((_) {
+                      Future.sync(() => _pagingController.refresh());
+                    });
+                  },
                   icon: const Icon(
                     Icons.edit_document,
                     color: Colors.blueAccent,
                   ),
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _deleteExercise(item);
+                  },
                   icon: const Icon(
                     Icons.delete,
                     color: Colors.red,
@@ -251,5 +257,121 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
             ),
           )
         : null;
+  }
+
+  _deleteExercise(Exercise exercise) {
+    showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: const SizedBox(
+            height: 100,
+            width: 300,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Tem certeza?',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 23,
+                  ),
+                ),
+                Text(
+                  'Você realmente deseja excluir esse exercício?',
+                  maxLines: null,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, 'Kill it');
+              },
+              child: const Text(
+                'Sim',
+                style: TextStyle(fontSize: 15, color: Colors.red),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Não',
+                style: TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    ).then(
+      (value) {
+        if (value == 'Kill it') {
+          ExercisesService.delete(exercise.id).then(
+            (res) {
+              showDialog(
+                context: context,
+                barrierColor: const Color(0x55000000),
+                builder: (context) {
+                  return AlertDialog(
+                    content: SizedBox(
+                      height: 200,
+                      width: 300,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Excluido!',
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text(
+                              'Ok',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ).then((v) {
+                Navigator.pop(context);
+              });
+            },
+          ).catchError((e) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return Column(
+                  children: [
+                    const Text(
+                      'Error',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    Text(e),
+                  ],
+                );
+              },
+            );
+          });
+        }
+      },
+    );
   }
 }
