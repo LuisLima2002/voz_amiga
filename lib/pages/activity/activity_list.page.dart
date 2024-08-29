@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -187,7 +186,6 @@ class _ActivityListPageState extends State<ActivityListPage> {
             icon: Icons.edit_outlined,
             onPressed: (context) {
               context.push(RouteNames.editActivity(item.id)).then((_) {
-                print('fresh');
                 Future.sync(() => _pagingController.refresh());
               });
             },
@@ -210,7 +208,6 @@ class _ActivityListPageState extends State<ActivityListPage> {
     return ListTile(
       onTap: () {
         context.push(RouteNames.activity(item.id)).then((_) {
-          print('fresh');
           Future.sync(() => _pagingController.refresh());
         });
       },

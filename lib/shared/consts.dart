@@ -5,8 +5,13 @@ import 'package:voz_amiga/shared/app.routes.dart';
 class RouteNames {
   static const String login = '/login';
   static const String home = '/';
+
+  static const String exercisesList = '/exercise';
+  static String newExercise = '/exercise/new/form';
+  static String editExercise(String id) => '/exercise/$id/form';
+  static String exercise(String id) => '/exercise/$id';
+
   static const String activityList = '/activity';
-  static const String exercisesList = '/exercises';
   static const String newActivity = '/activity/new/form';
   static String editActivity(String id) => '/activity/$id/form';
   static String activity(String id) => '/activity/$id';

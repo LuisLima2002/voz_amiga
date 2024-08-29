@@ -3,16 +3,18 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
-  static const String _serverAdress = "192.168.0.4:5000";
+  static const String _serverAdress = "localhost:5000";
 
   static Future<http.Response> post(String route, Object body) async {
     final uri = getUri(route);
+    final json = jsonEncode(body);
+    print(json);
     final response = await http.post(
       uri,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(body),
+      body: json,
     );
 
     return response;
@@ -46,6 +48,19 @@ class ApiClient {
     return route.startsWith('http')
         ? Uri.parse(route)
         : Uri.http(_serverAdress, 'api/$route', params);
+  }
+
+  static Future<http.Response> put(String route, Object body) async {
+    final uri = getUri(route);
+    final response = await http.put(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(body),
+    );
+
+    return response;
   }
 }
 

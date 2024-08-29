@@ -1,6 +1,8 @@
 // libs
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:voz_amiga/pages/exercises/exercise_form.page.dart';
+import 'package:voz_amiga/pages/exercises/exercise_viewer.dart';
 // other
 import 'package:voz_amiga/shared/consts.dart';
 // pages
@@ -92,10 +94,29 @@ class AppRouteConfig {
             navigatorKey: exercisesPageKey,
             routes: [
               GoRoute(
-                name: 'Exercícios',
-                path: RouteNames.exercisesList,
-                builder: (context, state) => const ExercisesListPage(),
-              ),
+                  name: 'Exercícios',
+                  path: RouteNames.exercisesList,
+                  builder: (context, state) => const ExercisesListPage(),
+                  routes: [
+                    GoRoute(
+                      name: 'Exercicio',
+                      path: ':id',
+                      builder: (context, state) {
+                        return ExerciseViewerPage(
+                          id: state.pathParameters['id']!,
+                        );
+                      },
+                    ),
+                    GoRoute(
+                      name: 'Novo Exercicio',
+                      path: ':id/form',
+                      builder: (context, state) {
+                        return ExerciseFormPage(
+                          id: state.pathParameters['id'],
+                        );
+                      },
+                    ),
+                  ]),
             ],
           ),
         ],
