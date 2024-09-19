@@ -66,9 +66,9 @@ class _LoginPageState extends State<LoginPage> {
         _errors = res.errors;
       });
     } else if (context.mounted) {
-      if(res.content.isPatient){
+      if (res.content.isPatient) {
         context.go(RouteNames.homePatient);
-      }else{
+      } else {
         context.go(RouteNames.home);
       }
     }
@@ -194,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    "images/AlaskaCode.png",
+                    "assets/images/AlaskaCode.png",
                     fit: BoxFit.cover,
                   ),
                 ],

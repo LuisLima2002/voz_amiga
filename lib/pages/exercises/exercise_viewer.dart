@@ -1,83 +1,49 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:video_player/video_player.dart';
-import 'package:voz_amiga/dto/activity.dto.dart';
-import 'package:voz_amiga/infra/services/activities.service.dart';
-import 'package:voz_amiga/shared/client.dart';
+import 'package:voz_amiga/dto/exercise.dto.dart';
+import 'package:voz_amiga/infra/services/exercises.service.dart';
 import 'package:voz_amiga/shared/consts.dart';
+import 'package:voz_amiga/utils/string_utils.dart';
 
-class ActivityViewerPage extends StatefulWidget {
+class ExerciseViewerPage extends StatefulWidget {
   final String id;
-  const ActivityViewerPage({
+  const ExerciseViewerPage({
     super.key,
     required this.id,
   });
 
   @override
-  State<ActivityViewerPage> createState() => _ActivityViewerPageState();
+  State<ExerciseViewerPage> createState() => _ExerciseViewerPageState();
 }
 
-class _ActivityViewerPageState extends State<ActivityViewerPage> {
-  late VideoPlayerController _videoController;
-  bool _isInitialized = false;
-  bool _pauseVisible = true;
+class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
   bool _isLoading = true;
-  ActivityDTO? _activity;
+  Exercise? _exercise;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    _initializeVideoPlayer();
-    ActivitiesService.getActivity(widget.id).then((response) {
+    ExercisesService.getExercise(widget.id).then((response) {
       setState(() {
         if (response.$1 != null) {
           _error = response.$1.toString();
         } else {
-          _activity = response.$2;
+          _exercise = response.$2;
         }
         _isLoading = false;
       });
     });
   }
 
-  Future<void> _initializeVideoPlayer() async {
-    try {
-      final uri = ApiClient.getUri(
-        'activity/${widget.id.replaceAll('-', '')}/media',
-      );
-      _videoController = VideoPlayerController.networkUrl(
-        uri,
-        httpHeaders: {
-          // 'Authorization': 'Bearer ${widget.id}',
-        },
-      );
-
-      await _videoController.initialize();
-      setState(() {
-        _isInitialized = true;
-        _error = null;
-      });
-    } catch (e) {
-      print("Error initializing video player: $e");
-      setState(() {
-        _isInitialized = true;
-        _error = 'Não foi possível carregar o vídeo';
-      });
-    }
-  }
-
   @override
   void dispose() {
-    _videoController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return _isLoading || !_isInitialized
+    return _isLoading
         ? const Center(child: CircularProgressIndicator())
         : _error == null
             ? _details
@@ -87,51 +53,74 @@ class _ActivityViewerPageState extends State<ActivityViewerPage> {
   }
 
   Widget get _details {
+    const titleStyle = TextStyle(
+      fontSize: 15,
+      fontWeight: FontWeight.w600,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       // mainAxisSize: MainAxisSize.min,
       children: [
-        _player,
-        Expanded(
+        Padding(
+          padding: const EdgeInsets.all(10),
           child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    "Título",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _exercise!.title.capitalize(),
+                  style: const TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
                   ),
-                  Text(
-                    _activity!.title,
-                    style: const TextStyle(
-                      fontSize: 25,
-                    ),
+                ),
+                const Text(
+                  "Descrição",
+                  style: titleStyle,
+                ),
+                Text(
+                  _exercise!.description,
+                  style: const TextStyle(
+                    fontSize: 20,
                   ),
-                  const Text(
-                    "Descrição",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    _activity!.description,
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                  )
-                ],
-              ),
+                ),
+                const Text(
+                  'Atividades',
+                  style: titleStyle,
+                ),
+              ],
             ),
           ),
         ),
+        (_exercise?.activities?.length ?? 0) == 0
+            ? const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Text(
+                    'Sem atividades relaciondas',
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              )
+            : ListView.separated(
+                shrinkWrap: true,
+                itemCount: _exercise?.activities?.length ?? 0,
+                separatorBuilder: (context, i) {
+                  return SizedBox(
+                    height: 0.5,
+                    child: ColoredBox(
+                      color: Colors.grey[300]!,
+                    ),
+                  );
+                },
+                itemBuilder: (context, i) {
+                  return const SizedBox();
+                },
+              ),
         _actions,
       ],
     );
@@ -148,7 +137,7 @@ class _ActivityViewerPageState extends State<ActivityViewerPage> {
             fit: FlexFit.tight,
             child: ElevatedButton(
               onPressed: () {
-                _deleteActivity();
+                _deleteExercise();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
@@ -166,7 +155,7 @@ class _ActivityViewerPageState extends State<ActivityViewerPage> {
           Flexible(
             child: ElevatedButton(
               onPressed: () {
-                context.push(RouteNames.editActivity(widget.id));
+                context.push(RouteNames.editExercise(widget.id));
               },
               style: ElevatedButton.styleFrom(
                 elevation: 0,
@@ -187,73 +176,7 @@ class _ActivityViewerPageState extends State<ActivityViewerPage> {
     );
   }
 
-  Timer? _cancel;
-  Widget get _player {
-    var onStack = <Widget>[
-      AspectRatio(
-        aspectRatio: _videoController.value.aspectRatio,
-        child: GestureDetector(
-          onTap: () {
-            setState(() {
-              _pauseVisible = true;
-              _cancel = Timer(
-                const Duration(seconds: 1, milliseconds: 500),
-                () {
-                  setState(() {
-                    _pauseVisible = false;
-                  });
-                },
-              );
-            });
-          },
-          child: VideoPlayer(_videoController),
-        ),
-      ),
-    ];
-    if (_pauseVisible) {
-      onStack.add(Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                if (_videoController.value.isPlaying) {
-                  _videoController.pause();
-                  _pauseVisible = true;
-                  _cancel?.cancel();
-                } else {
-                  _videoController.play();
-                  _pauseVisible = false;
-                }
-              });
-            },
-            backgroundColor: const Color(0xFFFFFFFF),
-            foregroundColor: Colors.black,
-            clipBehavior: Clip.antiAlias,
-            shape: const CircleBorder(),
-            child: _videoController.value.isPlaying
-                ? const Icon(Icons.pause)
-                : const Icon(Icons.play_arrow),
-          ),
-        ],
-      ));
-    }
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.black,
-      ),
-      height: 250,
-      width: double.infinity,
-      child: Center(
-        child: Stack(
-          alignment: AlignmentDirectional.center,
-          children: onStack,
-        ),
-      ),
-    );
-  }
-
-  _deleteActivity() {
+  _deleteExercise() {
     showDialog<String>(
       context: context,
       builder: (context) {
@@ -272,7 +195,7 @@ class _ActivityViewerPageState extends State<ActivityViewerPage> {
                   ),
                 ),
                 Text(
-                  'Você realmente deseja excluir essa atividade?',
+                  'Você realmente deseja excluir esse exercício?',
                   maxLines: null,
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -309,7 +232,7 @@ class _ActivityViewerPageState extends State<ActivityViewerPage> {
     ).then(
       (value) {
         if (value == 'Kill it') {
-          ActivitiesService.delete(widget.id).then(
+          ExercisesService.delete(widget.id).then(
             (res) {
               showDialog(
                 context: context,

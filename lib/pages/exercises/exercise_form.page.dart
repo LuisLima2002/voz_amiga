@@ -1,38 +1,30 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mime/mime.dart';
-// import 'package:voz_amiga/components/video_player.dart';
-import 'package:voz_amiga/infra/services/activities.service.dart';
+import 'package:voz_amiga/infra/services/exercises.service.dart';
 
-class ActivityFormPage extends StatefulWidget {
+class ExerciseFormPage extends StatefulWidget {
   final String? id;
-  const ActivityFormPage({super.key, this.id = 'new'});
+  const ExerciseFormPage({super.key, this.id = 'new'});
 
   @override
-  State<ActivityFormPage> createState() => _ActivityFormPageState();
+  State<ExerciseFormPage> createState() => _ExerciseFormPageState();
 }
 
-class _ActivityFormPageState extends State<ActivityFormPage> {
+class _ExerciseFormPageState extends State<ExerciseFormPage> {
   late Map<String, TextEditingController> _controllers;
-  final _formKey = GlobalKey<FormState>(debugLabel: 'activityForm');
-  late bool _fileError;
-  PlatformFile? _file;
-  String? _fileName;
-  String? _mime;
+  final _formKey = GlobalKey<FormState>(debugLabel: 'exerciseForm');
 
   @override
   void initState() {
     super.initState();
-    _fileError = false;
     _controllers = <String, TextEditingController>{
       'title': TextEditingController(),
       'description': TextEditingController(),
       'points': TextEditingController(),
     };
     if (widget.id != 'new') {
-      ActivitiesService.getActivity(widget.id!).then((result) {
+      ExercisesService.getExercise(widget.id!).then((result) {
         if (result.$1 != null) {
           showDialog(
             context: context,
@@ -58,8 +50,6 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
               'description': TextEditingController(text: activity.description),
               'points': TextEditingController(text: activity.points.toString()),
             };
-            _fileName = activity.data;
-            _mime = activity.mimeType;
           });
         }
       });
@@ -77,7 +67,6 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
     _controllers.forEach((k, c) {
       c.dispose();
     });
-    _fileError = false;
     super.dispose();
   }
 
@@ -99,47 +88,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
               const SizedBox(height: 10),
               // Description
               _descriptionFormField,
-              const SizedBox(height: 10),
-              _file == null && _fileName == null
-                  ? _fileError
-                      ? const SizedBox(
-                          height: 20,
-                          child: Text(
-                            "Precisa selecionar um arquivo",
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        )
-                      : const SizedBox(height: 1)
-                  : _selectedFile,
               // Select File
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(
-                      allowMultiple: false,
-                      type: FileType.media,
-                    );
-                    if (result != null) {
-                      setState(() {
-                        _fileError = false;
-                        _file = result.files[0];
-                        _fileName = null;
-                        _mime = null;
-                      });
-                    }
-                  },
-                  label: const Text(
-                    "Selecionar video",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  icon: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(Icons.upload_sharp),
-                  ),
-                ),
-              ),
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.only(top: 10),
@@ -167,27 +116,19 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
   }
 
   Future<void> _save() async {
-    if (_file == null && _fileName == null) {
-      setState(() {
-        _fileError = true;
-      });
-    }
-    if (_formKey.currentState!.validate() &&
-        (_file != null || _fileName != null && widget.id != 'new')) {
+    if (_formKey.currentState!.validate()) {
       try {
         var res = widget.id == 'new'
-            ? await ActivitiesService.save(
+            ? await ExercisesService.save(
                 title: _controllers['title']!.text,
                 description: _controllers['description']!.text,
                 points: int.parse(_controllers['points']!.text),
-                file: _file!,
               )
-            : await ActivitiesService.update(
+            : await ExercisesService.update(
                 widget.id!,
                 title: _controllers['title']!.text,
                 description: _controllers['description']!.text,
                 points: int.parse(_controllers['points']!.text),
-                file: _file,
               );
 
         if (res > 0) {
@@ -214,10 +155,6 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
             _controllers.forEach((k, v) {
               _controllers[k]!.text = '';
             });
-            _file = null;
-            _fileError = false;
-            _fileName = null;
-            _mime = null;
           });
         }
       } catch (e) {
@@ -371,79 +308,6 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
           fontSize: 18,
         ),
       ),
-    );
-  }
-
-  Widget get _selectedFile {
-    final mimeType =
-        _fileName == null ? lookupMimeType(_file!.path.toString()) : _mime;
-    Icon fileIcon = switch (mimeType?.split('/')[0]) {
-      'video' => const Icon(Icons.video_library_outlined),
-      'image' => const Icon(Icons.photo_outlined),
-      _ => const Icon(Icons.question_mark_sharp)
-    };
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            fileIcon,
-            Text(
-              _fileName?.substring(0, 33) ?? _file!.name,
-              overflow: TextOverflow.ellipsis,
-              softWrap: true,
-              style: const TextStyle(
-                fontSize: 20,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-        IconButton(
-          onPressed: () async {
-            await showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text(
-                      "Realmente deseja remover o arquivo?",
-                    ),
-                    actions: [
-                      TextButton(
-                        child: const Text('Sim'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _file = null;
-                          });
-                        },
-                      ),
-                      TextButton(
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                    alignment: Alignment.center,
-                  );
-                });
-            // setState(() {});
-          },
-          icon: const Icon(Icons.close),
-          style: IconButton.styleFrom(
-            foregroundColor: Colors.red,
-          ),
-        )
-      ],
     );
   }
 }

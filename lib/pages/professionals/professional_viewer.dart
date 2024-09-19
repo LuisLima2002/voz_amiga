@@ -163,7 +163,7 @@ class _ProfessionalViewerPageState extends State<ProfessionalViewerPage> {
                           child: const Padding(
                             padding: EdgeInsets.all(8),
                             child: Text(
-                              "Deletar Paciente",
+                              "Deletar Profissional",
                               style:
                                   TextStyle(fontSize: 20, color: Colors.white),
                             ),

@@ -10,6 +10,10 @@ class LoginService {
   static const _path = 'auth';
   static const _storage = FlutterSecureStorage();
 
+  static Future<void> saiFora() async {
+    await _storage.delete(key: 'jwt');
+  }
+
   static Future<String?> get giveMyToken async {
     final token = await _storage.read(key: 'jwt');
     return token;

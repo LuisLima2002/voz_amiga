@@ -1,17 +1,12 @@
 import 'dart:convert';
-import 'package:file_picker/file_picker.dart';
-import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
-
-import 'package:http/http.dart' as http;
-import 'package:voz_amiga/dto/activity.dto.dart';
+import 'package:voz_amiga/dto/exercise.dto.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/utils/paginated.dart';
 
-class ActivitiesService {
-  static const String _frag = 'activity';
+class ExercisesService {
+  static const String _frag = 'exercises';
 
-  static Future<(dynamic, Paginated<ActivityDTO>)> getActivities({
+  static Future<(dynamic, Paginated<Exercise>)> getExercises({
     String? filter,
     int? page,
     int? pageSize,
@@ -28,13 +23,13 @@ class ActivitiesService {
         null,
         Paginated.fromJson(
           response: body,
-          parseList: (l) => l.map((d) => ActivityDTO.fromJSON(d)).toList(),
+          parseList: (l) => l.map((d) => Exercise.fromJSON(d)).toList(),
         ),
       );
     } else {
       return (
         jsonDecode(response.body),
-        Paginated<ActivityDTO>.empty(),
+        Paginated<Exercise>.empty(),
       );
     }
   }
@@ -43,24 +38,13 @@ class ActivitiesService {
     required String title,
     required String description,
     required int points,
-    required PlatformFile file,
   }) async {
-    final uri = ApiClient.getUri(_frag);
-    var request = http.MultipartRequest('POST', uri);
-
-    request.fields.addAll({
-      'title': title,
-      'description': description,
-      'points': '$points',
-    });
-    final multipartFile = await http.MultipartFile.fromPath(
-      'media',
-      file.path!,
-      contentType: MediaType.parse(lookupMimeType(file.path!) ?? ""),
-    );
-    request.files.add(multipartFile);
     try {
-      final response = await request.send();
+      final response = await ApiClient.post(_frag, {
+        'title': title,
+        'description': description,
+        'points': points,
+      });
       return response.statusCode;
     } catch (e) {
       print(e);
@@ -68,13 +52,13 @@ class ActivitiesService {
     }
   }
 
-  static Future<(dynamic, ActivityDTO?)> getActivity(String id) async {
+  static Future<(dynamic, Exercise?)> getExercise(String id) async {
     try {
       final response = await ApiClient.get('$_frag/$id');
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
         print(body);
-        return (null, ActivityDTO.fromJSON(body));
+        return (null, Exercise.fromJSON(body));
       }
       return ('Não encontrado', null);
     } catch (e) {
@@ -97,26 +81,13 @@ class ActivitiesService {
     required String title,
     required String description,
     required int points,
-    required PlatformFile? file,
   }) async {
-    final uri = ApiClient.getUri('$_frag/$id');
-    var request = http.MultipartRequest('PUT', uri);
-    print(uri);
-    request.fields.addAll({
-      'title': title,
-      'description': description,
-      'points': '$points',
-    });
-    if (file != null) {
-      final multipartFile = await http.MultipartFile.fromPath(
-        'media',
-        file.path!,
-        contentType: MediaType.parse(lookupMimeType(file.path!) ?? ""),
-      );
-      request.files.add(multipartFile);
-    }
     try {
-      final response = await request.send();
+      final response = await ApiClient.put('$_frag/$id', {
+        'title': title,
+        'description': description,
+        'points': points,
+      });
       return response.statusCode;
     } catch (e) {
       print(e);
