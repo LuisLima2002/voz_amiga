@@ -25,13 +25,32 @@ class NavigationPatientContainer extends StatelessWidget {
 
   Widget _portraitLayout(BuildContext context) {
     return Scaffold(
-      body: const Padding(padding: EdgeInsets.all(10),child: Column(crossAxisAlignment: CrossAxisAlignment.stretch,children: [Card(color: Colors.deepPurple,child:SizedBox(height: 100,)),Card(color: Colors.deepPurple,child:SizedBox(height: 100,))])),
+      body: const Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              color: Colors.deepPurple,
+              child: SizedBox(
+                height: 100,
+              ),
+            ),
+            Card(
+              color: Colors.deepPurple,
+              child: SizedBox(
+                height: 100,
+              ),
+            ),
+          ],
+        ),
+      ),
       appBar: VaAppBar(
         title: title,
       ),
       bottomNavigationBar: NavigationBar(
         height: 60,
-        selectedIndex: 0,//navigationShell.currentIndex,
+        selectedIndex: 0, //navigationShell.currentIndex,
         destinations: _destinations,
         onDestinationSelected: _goBranch,
       ),
@@ -55,7 +74,7 @@ class NavigationPatientContainer extends StatelessWidget {
               color: Colors.purple,
               fontWeight: FontWeight.w700,
             ),
-            selectedIndex: 0,//navigationShell.currentIndex,
+            selectedIndex: 0, //navigationShell.currentIndex,
             onDestinationSelected: _goBranch,
             labelType: NavigationRailLabelType.none,
             destinations: _railDestinations,
@@ -63,7 +82,7 @@ class NavigationPatientContainer extends StatelessWidget {
           )
         : NavigationRail(
             extended: false,
-            selectedIndex: 0,//navigationShell.currentIndex,
+            selectedIndex: 0, //navigationShell.currentIndex,
             onDestinationSelected: _goBranch,
             labelType: NavigationRailLabelType.all,
             destinations: _railDestinations,
@@ -82,7 +101,26 @@ class NavigationPatientContainer extends StatelessWidget {
           const VerticalDivider(thickness: 1, width: 1),
           // Main content on the right (end)
           const Expanded(
-            child:  Padding(padding: EdgeInsets.all(10),child: Column(crossAxisAlignment: CrossAxisAlignment.stretch,children: [Card(color: Colors.deepPurple,child:SizedBox(height: 100,)),Card(color: Colors.deepPurple,child:SizedBox(height: 100,))])),
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Card(
+                    color: Colors.deepPurple,
+                    child: SizedBox(
+                      height: 100,
+                    ),
+                  ),
+                  Card(
+                    color: Colors.deepPurple,
+                    child: SizedBox(
+                      height: 100,
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
         ],
       ),

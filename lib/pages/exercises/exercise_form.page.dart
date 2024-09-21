@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:voz_amiga/infra/services/exercises.service.dart';
+import 'package:voz_amiga/utils/toastr.dart';
 
 class ExerciseFormPage extends StatefulWidget {
   final String? id;
@@ -116,6 +118,8 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
   }
 
   Future<void> _save() async {
+    Toastr.success(context, 'Su sexo');
+    return;
     if (_formKey.currentState!.validate()) {
       try {
         var res = widget.id == 'new'
@@ -133,22 +137,24 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
 
         if (res > 0) {
           if (context.mounted) {
-            await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: const Text('Salvo com sucesso!'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Ok'),
-                    ),
-                  ],
-                );
-              },
-            );
+            // ignore: use_build_context_synchronously
+            // await showDialog(
+            //   // ignore: use_build_context_synchronously
+            //   context: context,
+            //   builder: (context) {
+            //     return AlertDialog(
+            //       content: const Text('Salvo com sucesso!'),
+            //       actions: [
+            //         TextButton(
+            //           onPressed: () {
+            //             Navigator.pop(context);
+            //           },
+            //           child: const Text('Ok'),
+            //         ),
+            //       ],
+            //     );
+            //   },
+            // );
           }
           setState(() {
             _formKey.currentState?.reset();
