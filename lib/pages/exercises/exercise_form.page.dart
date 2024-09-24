@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:voz_amiga/infra/services/exercises.service.dart';
+import 'package:voz_amiga/shared/consts.dart';
 import 'package:voz_amiga/utils/toastr.dart';
 
 class ExerciseFormPage extends StatefulWidget {
@@ -90,7 +91,7 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
               const SizedBox(height: 10),
               // Description
               _descriptionFormField,
-              // Select File
+              // confirm
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.only(top: 10),
@@ -118,8 +119,6 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
   }
 
   Future<void> _save() async {
-    Toastr.success(context, 'Su sexo');
-    return;
     if (_formKey.currentState!.validate()) {
       try {
         var res = widget.id == 'new'
@@ -134,66 +133,48 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
                 description: _controllers['description']!.text,
                 points: int.parse(_controllers['points']!.text),
               );
-
-        if (res > 0) {
-          if (context.mounted) {
-            // ignore: use_build_context_synchronously
-            // await showDialog(
-            //   // ignore: use_build_context_synchronously
-            //   context: context,
-            //   builder: (context) {
-            //     return AlertDialog(
-            //       content: const Text('Salvo com sucesso!'),
-            //       actions: [
-            //         TextButton(
-            //           onPressed: () {
-            //             Navigator.pop(context);
-            //           },
-            //           child: const Text('Ok'),
-            //         ),
-            //       ],
-            //     );
-            //   },
-            // );
-          }
-          setState(() {
-            _formKey.currentState?.reset();
-            _controllers.forEach((k, v) {
-              _controllers[k]!.text = '';
-            });
-          });
+        if (mounted) {
+          Toastr.success(context, 'Salvo!');
+          context.go(RouteNames.exercise(res));
         }
+        setState(() {
+          _formKey.currentState?.reset();
+          _controllers.forEach((k, v) {
+            _controllers[k]!.text = '';
+          });
+        });
       } catch (e) {
-        showDialog(
-          // ignore: use_build_context_synchronously
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              alignment: Alignment.center,
-              icon: const Icon(Icons.dangerous, color: Colors.red, size: 35),
-              title: const Text('Ocorreu um erro durante o salvamento!'),
-              titleTextStyle: const TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-              ),
-              content: Text(e.toString()),
-              actions: [
-                TextButton(
-                  child: const Text(
-                    'Cancelar',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.w600,
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                alignment: Alignment.center,
+                icon: const Icon(Icons.dangerous, color: Colors.red, size: 35),
+                title: const Text('Ocorreu um erro durante o salvamento!'),
+                titleTextStyle: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                ),
+                content: Text(e.toString()),
+                actions: [
+                  TextButton(
+                    child: const Text(
+                      'Cancelar',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            );
-          },
-        );
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              );
+            },
+          );
+        }
       }
     }
   }

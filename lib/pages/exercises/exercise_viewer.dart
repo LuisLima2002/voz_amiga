@@ -4,6 +4,7 @@ import 'package:voz_amiga/dto/exercise.dto.dart';
 import 'package:voz_amiga/infra/services/exercises.service.dart';
 import 'package:voz_amiga/shared/consts.dart';
 import 'package:voz_amiga/utils/string_utils.dart';
+import 'package:voz_amiga/utils/toastr.dart';
 
 class ExerciseViewerPage extends StatefulWidget {
   final String id;
@@ -234,42 +235,8 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
         if (value == 'Kill it') {
           ExercisesService.delete(widget.id).then(
             (res) {
-              showDialog(
-                context: context,
-                barrierColor: const Color(0x55000000),
-                builder: (context) {
-                  return AlertDialog(
-                    content: SizedBox(
-                      height: 200,
-                      width: 300,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Excluido!',
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              'Ok',
-                              style: TextStyle(
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ).then((v) {
-                Navigator.pop(context);
-              });
+              Toastr.success(context, 'Excluido!');
+              Navigator.pop(context);
             },
           ).catchError((e) {
             showDialog(
