@@ -95,4 +95,39 @@ class ExercisesService {
       rethrow;
     }
   }
+
+  static Future<void> addActivityToExercise({
+    required String exerciseId,
+    required String activityId,
+  }) async {
+    //
+    try {
+      final response = await ApiClient.put('$_frag/$exerciseId/activity', {
+        'exerciseId': exerciseId,
+        'activityId': activityId,
+        'status': true,
+      });
+      return jsonDecode(response.body)['message'];
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  static Future removeActivityFromService({
+    required String exerciseId,
+    required String activityId,
+  }) async {
+    try {
+      final response = await ApiClient.put('$_frag/$exerciseId/activity', {
+        'exerciseId': exerciseId,
+        'activityId': activityId,
+        'status': false,
+      });
+      return jsonDecode(response.body)['message'];
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
 }
