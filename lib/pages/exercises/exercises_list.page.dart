@@ -6,9 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:voz_amiga/dto/exercise.dto.dart';
 import 'package:voz_amiga/infra/services/exercises.service.dart';
+import 'package:voz_amiga/pages/exercises/widgets/empty_search.w.dart';
+import 'package:voz_amiga/pages/exercises/widgets/first_try_error.w.dart';
 import 'package:voz_amiga/shared/consts.dart';
 import 'package:voz_amiga/utils/platform_utils.dart';
 import 'package:voz_amiga/utils/string_utils.dart';
+import 'package:voz_amiga/utils/toastr.dart';
 
 class ExercisesListPage extends StatefulWidget {
   const ExercisesListPage({super.key});
@@ -124,42 +127,13 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
                 builderDelegate: PagedChildBuilderDelegate<Exercise>(
                   itemBuilder: _buildTile,
                   noItemsFoundIndicatorBuilder: (context) {
-                    return const Center(
-                      child: Text(
-                        "Algo deu errado!\nTente novamente",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 55, 170, 223),
-                        ),
-                      ),
-                    );
+                    return const EmptySearch();
+                  },
+                  newPageErrorIndicatorBuilder: (context) {
+                    return const Text('Ocorreu um erro!');
                   },
                   firstPageErrorIndicatorBuilder: (context) {
-                    return const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.dangerous,
-                          color: Color(0xFF770000),
-                          size: 35,
-                        ),
-                        Text(
-                          "Algo deu errado!",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Color(0xFF770000),
-                          ),
-                        ),
-                        Text(
-                          "Tenta mais tarde",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF770000),
-                          ),
-                        ),
-                      ],
-                    );
+                    return const FirstTryError();
                   },
                 ),
               ),
@@ -291,7 +265,9 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context, 'Kill it');
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context, 'Kill it');
+                }
               },
               child: const Text(
                 'Sim',
@@ -317,42 +293,8 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
         if (value == 'Kill it') {
           ExercisesService.delete(exercise.id).then(
             (res) {
-              showDialog(
-                context: context,
-                barrierColor: const Color(0x55000000),
-                builder: (context) {
-                  return AlertDialog(
-                    content: SizedBox(
-                      height: 200,
-                      width: 300,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Excluido!',
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              'Ok',
-                              style: TextStyle(
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ).then((v) {
-                Navigator.pop(context);
-              });
+              Toastr.success(context, 'Excluido com sucesso!');
+              _pagingController.refresh();
             },
           ).catchError((e) {
             showDialog(

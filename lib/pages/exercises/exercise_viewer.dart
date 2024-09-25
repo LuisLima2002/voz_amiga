@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:voz_amiga/dto/exercise.dto.dart';
 import 'package:voz_amiga/infra/services/exercises.service.dart';
+import 'package:voz_amiga/pages/exercises/widgets/select_activity.w.dart';
 import 'package:voz_amiga/shared/consts.dart';
+import 'package:voz_amiga/utils/platform_utils.dart';
 import 'package:voz_amiga/utils/string_utils.dart';
 import 'package:voz_amiga/utils/toastr.dart';
 
@@ -25,16 +28,7 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
   @override
   void initState() {
     super.initState();
-    ExercisesService.getExercise(widget.id).then((response) {
-      setState(() {
-        if (response.$1 != null) {
-          _error = response.$1.toString();
-        } else {
-          _exercise = response.$2;
-        }
-        _isLoading = false;
-      });
-    });
+    _load();
   }
 
   @override
@@ -55,7 +49,7 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
 
   Widget get _details {
     const titleStyle = TextStyle(
-      fontSize: 15,
+      fontSize: 20,
       fontWeight: FontWeight.w600,
     );
     return Column(
@@ -63,8 +57,31 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       // mainAxisSize: MainAxisSize.min,
       children: [
+        Container(
+          height: MediaQuery.of(context).size.height * .3,
+          decoration: const BoxDecoration(color: Colors.black),
+          child: Center(
+            child: Material(
+              elevation: 1,
+              child: Container(
+                width: MediaQuery.of(context).size.height * .5,
+                decoration: const BoxDecoration(
+                  color: Colors.black12,
+                ),
+                child: const Placeholder(
+                  child: Center(
+                    child: Text(
+                      '[WIP]',
+                      style: TextStyle(fontSize: 30),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
         Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,16 +104,79 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
                     fontSize: 20,
                   ),
                 ),
-                const Text(
-                  'Atividades',
-                  style: titleStyle,
+                // Container(
+                //   padding: const EdgeInsets.all(4),
+                //   width: double.infinity,
+                //   decoration: BoxDecoration(
+                //     border: Border.all(
+                //       color: Colors.black12,
+                //       width: 2,
+                //     ),
+                //     borderRadius: const BorderRadius.all(Radius.circular(4)),
+                //   ),
+                //   child: Text(
+                //     _exercise!.description,
+                //     style: const TextStyle(
+                //       fontSize: 20,
+                //     ),
+                //   ),
+                // ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Atividades',
+                      style: titleStyle,
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return SelectActivity(
+                              exerciseId: _exercise!.id,
+                              activities: _exercise!.activities
+                                      ?.map((a) => a.id)
+                                      .toList() ??
+                                  [],
+                            );
+                          },
+                        ).then((_) {
+                          _load();
+                        });
+                      },
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: const Text(
+                        'Add Atividade',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    )
+                  ],
                 ),
               ],
             ),
           ),
         ),
-        (_exercise?.activities?.length ?? 0) == 0
-            ? const Expanded(
+        (_exercise?.activities?.isNotEmpty == true)
+            ? Expanded(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: _exercise!.activities!.length,
+                  separatorBuilder: (context, i) {
+                    return const SizedBox(
+                      height: 0.5,
+                      child: ColoredBox(
+                        color: Colors.blueGrey,
+                      ),
+                    );
+                  },
+                  itemBuilder: (context, i) {
+                    print(i);
+                    return _tile(context, _exercise!.activities![i]);
+                  },
+                ),
+              )
+            : const Expanded(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10.0),
                   child: Text(
@@ -106,25 +186,56 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
                     ),
                   ),
                 ),
-              )
-            : ListView.separated(
-                shrinkWrap: true,
-                itemCount: _exercise?.activities?.length ?? 0,
-                separatorBuilder: (context, i) {
-                  return SizedBox(
-                    height: 0.5,
-                    child: ColoredBox(
-                      color: Colors.grey[300]!,
-                    ),
-                  );
-                },
-                itemBuilder: (context, i) {
-                  return const SizedBox();
-                },
               ),
         _actions,
       ],
     );
+  }
+
+  Widget _tile(BuildContext context, ExerciseActivity item) {
+    return ListTile(
+      onTap: () {},
+      leading: const CircleAvatar(
+        radius: 30,
+        child: Icon(Icons.task),
+      ),
+      trailing: _trailing(context, item),
+      hoverColor: Colors.grey[200]!,
+      contentPadding: const EdgeInsets.all(5),
+      title: Text(
+        item.name.capitalize(),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
+    );
+  }
+
+  @pragma('vm:prefer-inline')
+  Widget? _trailing(BuildContext context, ExerciseActivity item) {
+    return MediaQuery.of(context).screenType == ScreenType.tablet ||
+            MediaQuery.of(context).screenType == ScreenType.desktop
+        ? SizedBox(
+            height: double.infinity,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    _deleteActivity(item.id);
+                  },
+                  icon: const Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                  ),
+                ),
+              ],
+            ),
+          )
+        : null;
   }
 
   Widget get _actions {
@@ -154,6 +265,25 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
             ),
           ),
           Flexible(
+            fit: FlexFit.tight,
+            child: ElevatedButton(
+              onPressed: () {
+                // _deleteExercise();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                shape: const ContinuousRectangleBorder(),
+              ),
+              child: const Column(
+                children: [
+                  Icon(Icons.person_add_alt_1),
+                  Text('Atribuir'),
+                ],
+              ),
+            ),
+          ),
+          Flexible(
             child: ElevatedButton(
               onPressed: () {
                 context.push(RouteNames.editExercise(widget.id));
@@ -175,6 +305,19 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
         ],
       ),
     );
+  }
+
+  void _load() {
+    ExercisesService.getExercise(widget.id).then((response) {
+      setState(() {
+        if (response.$1 != null) {
+          _error = response.$1.toString();
+        } else {
+          _exercise = response.$2;
+        }
+        _isLoading = false;
+      });
+    });
   }
 
   _deleteExercise() {
@@ -257,5 +400,89 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
         }
       },
     );
+  }
+
+  _deleteActivity(String activityId) async {
+    var res = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: const SizedBox(
+            height: 100,
+            width: 300,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Tem certeza?',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 23,
+                  ),
+                ),
+                Text(
+                  'Você realmente deseja excluir esse exercício?',
+                  maxLines: null,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, 'Kill it');
+              },
+              child: const Text(
+                'Sim',
+                style: TextStyle(fontSize: 15, color: Colors.red),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Não',
+                style: TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (res == 'Kill it') {
+      try {
+        await ExercisesService.removeActivityFromService(
+          exerciseId: _exercise!.id,
+          activityId: activityId,
+        );
+        if (mounted) Toastr.success(context, 'Excluido com sucess');
+        _load();
+      } catch (e) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return Column(
+                children: [
+                  const Text(
+                    'Error',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(e.toString()),
+                ],
+              );
+            },
+          );
+        }
+      }
+    }
   }
 }
