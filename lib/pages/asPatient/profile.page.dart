@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:voz_amiga/components/app_bar.dart';
 
 class NavigationPatientContainer extends StatelessWidget {
-  final StatefulNavigationShell? navigationShell;
+  final StatefulNavigationShell navigationShell;
   final String title;
 
   const NavigationPatientContainer({
@@ -25,13 +25,13 @@ class NavigationPatientContainer extends StatelessWidget {
 
   Widget _portraitLayout(BuildContext context) {
     return Scaffold(
-      body: const Padding(padding: EdgeInsets.all(10),child: Column(crossAxisAlignment: CrossAxisAlignment.stretch,children: [Card(color: Colors.deepPurple,child:SizedBox(height: 100,)),Card(color: Colors.deepPurple,child:SizedBox(height: 100,))])),
+      body:navigationShell,
       appBar: VaAppBar(
         title: title,
       ),
       bottomNavigationBar: NavigationBar(
         height: 60,
-        selectedIndex: 0,//navigationShell.currentIndex,
+        selectedIndex: navigationShell.currentIndex,
         destinations: _destinations,
         onDestinationSelected: _goBranch,
       ),
@@ -55,7 +55,7 @@ class NavigationPatientContainer extends StatelessWidget {
               color: Colors.purple,
               fontWeight: FontWeight.w700,
             ),
-            selectedIndex: 0,//navigationShell.currentIndex,
+            selectedIndex: navigationShell.currentIndex,
             onDestinationSelected: _goBranch,
             labelType: NavigationRailLabelType.none,
             destinations: _railDestinations,
@@ -63,7 +63,7 @@ class NavigationPatientContainer extends StatelessWidget {
           )
         : NavigationRail(
             extended: false,
-            selectedIndex: 0,//navigationShell.currentIndex,
+            selectedIndex: navigationShell.currentIndex,
             onDestinationSelected: _goBranch,
             labelType: NavigationRailLabelType.all,
             destinations: _railDestinations,
@@ -81,8 +81,8 @@ class NavigationPatientContainer extends StatelessWidget {
           rail,
           const VerticalDivider(thickness: 1, width: 1),
           // Main content on the right (end)
-          const Expanded(
-            child:  Padding(padding: EdgeInsets.all(10),child: Column(crossAxisAlignment: CrossAxisAlignment.stretch,children: [Card(color: Colors.deepPurple,child:SizedBox(height: 100,)),Card(color: Colors.deepPurple,child:SizedBox(height: 100,))])),
+          Expanded(
+            child: navigationShell,
           ),
         ],
       ),
@@ -106,27 +106,32 @@ class NavigationPatientContainer extends StatelessWidget {
   List<NavigationDestination> get _destinations {
     return const [
       NavigationDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home_filled),
+        label: 'Home',
+      ),
+      NavigationDestination(
         icon: Icon(Icons.task_outlined),
         selectedIcon: Icon(Icons.task_rounded),
-        label: 'Atividades',
+        label: 'Atividades Paciente',
       ),
-      NavigationDestination(
-        icon: Icon(Icons.file_present),
-        selectedIcon: Icon(Icons.file_present_outlined),
-        label: 'Histórico',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.settings),
-        selectedIcon: Icon(Icons.settings_outlined),
-        label: 'Ajustes',
-      )
+      // NavigationDestination(
+      //   icon: Icon(Icons.file_present),
+      //   selectedIcon: Icon(Icons.file_present_outlined),
+      //   label: 'Histórico',
+      // ),
+      // NavigationDestination(
+      //   icon: Icon(Icons.settings),
+      //   selectedIcon: Icon(Icons.settings_outlined),
+      //   label: 'Ajustes',
+      // )
     ];
   }
 
   void _goBranch(int index) {
-    // navigationShell.goBranch(
-    //   index,
-    //   initialLocation: index == navigationShell.currentIndex,
-    // );
+    navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex,
+    );
   }
 }

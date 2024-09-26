@@ -37,9 +37,13 @@ class _LoginPageState extends State<LoginPage> {
     // "fix" eternal recursion doom
     if (_isComponentNotLoaded) {
       final res = await _service.isLoggedIn();
-      if (res) {
+      if (res.token != null) {
         if (context.mounted) {
-          context.go('/');
+          if(!res.isPatient){
+           context.go(RouteNames.home);
+          }else{
+           context.go(RouteNames.homePatient);
+          }
         }
       } else {
         setState(() {

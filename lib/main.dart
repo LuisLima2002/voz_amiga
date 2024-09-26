@@ -20,7 +20,7 @@ void main() {
 
 class VozAmiga extends StatelessWidget {
   const VozAmiga({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(

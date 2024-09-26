@@ -19,9 +19,10 @@ class LoginService {
     return token;
   }
 
-  Future<bool> isLoggedIn() async {
+  Future<LoginInfo> isLoggedIn() async {
     final token = await _storage.read(key: 'jwt');
-    return token != null && token.isNotEmpty;
+    final bool  isPatient = bool.parse(await _storage.read(key: 'isPatient') ?? "false");
+    return LoginInfo(token: token, isPatient: isPatient);
   }
 
   Future<ResultWithBody> login(String? user, String? password) async {
@@ -41,7 +42,15 @@ class LoginService {
 
     if (!result.hasErrors) {
       await _storage.write(key: 'jwt', value: result.content.token);
+      await _storage.write(key: 'isPatient', value: result.content.isPatient.toString());
     }
     return result;
   }
+}
+
+class LoginInfo{
+  LoginInfo({required this.token,required this.isPatient});
+
+  final String? token;
+  final bool isPatient;
 }

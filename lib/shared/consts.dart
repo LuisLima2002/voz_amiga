@@ -6,13 +6,14 @@ class RouteNames {
   static const String login = '/login';
   static const String home = '/';
 
-  static const String exercisesList = '/exercise';
   static String newExercise = '/exercise/new/form';
   static String editExercise(String id) => '/exercise/$id/form';
   static String exercise(String id) => '/exercise/$id';
 
-  static const String homePatient = '/home/Patient';
+
+  
   static const String activityList = '/activity';
+  static const String exercisesList = '/exercises';
   static const String newActivity = '/activity/new/form';
   static const String patientsList = '/patient';
   static const String newPatient = '/patient/new/form';
@@ -26,6 +27,10 @@ class RouteNames {
   static String patient(String id) => '/patient/$id';
   static String editActivity(String id) => '/activity/$id/form';
   static String activity(String id) => '/activity/$id';
+
+  static const String homePatient = '/patientView/home';
+  static const String activityPatientList = '/patientView/activityPatient';
+  static String executeActivity(String id)  => '/patientView/activityPatient/$id';
 }
 
 AppBar createAppBar({
