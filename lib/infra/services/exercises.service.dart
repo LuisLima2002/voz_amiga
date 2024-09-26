@@ -34,7 +34,7 @@ class ExercisesService {
     }
   }
 
-  static Future<int> save({
+  static Future<String> save({
     required String title,
     required String description,
     required int points,
@@ -45,7 +45,8 @@ class ExercisesService {
         'description': description,
         'points': points,
       });
-      return response.statusCode;
+      String newExerciseId = jsonDecode(response.body)['id'];
+      return newExerciseId;
     } catch (e) {
       print(e);
       rethrow;
@@ -76,7 +77,7 @@ class ExercisesService {
     }
   }
 
-  static Future<int> update(
+  static Future<String> update(
     String id, {
     required String title,
     required String description,
@@ -88,7 +89,7 @@ class ExercisesService {
         'description': description,
         'points': points,
       });
-      return response.statusCode;
+      return jsonDecode(response.body)['id'];
     } catch (e) {
       print(e);
       rethrow;
