@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 import 'package:voz_amiga/dto/activity.dto.dart';
+import 'package:voz_amiga/dto/exercise.dto.dart';
 import 'package:voz_amiga/infra/services/activities.service.dart';
+import 'package:voz_amiga/infra/services/assignedExercises.service.dart';
+import 'package:voz_amiga/infra/services/exercises.service.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:voz_amiga/shared/consts.dart';
@@ -19,9 +21,11 @@ class ExecuteActivityPage extends StatefulWidget {
 
 class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
   late VideoPlayerController _videoController;
+  int _activityIndex = 0;
   bool _isInitialized = false;
   bool _pauseVisible = true;
   bool _isLoading = true;
+  Exercise? _exercise;
   ActivityDTO? _activity;
   String? _error;
   XFile? videoFile;
@@ -30,23 +34,68 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
   @override
   void initState() {
     super.initState();
-    _initializeVideoPlayer();
-    ActivitiesService.getActivity(widget.id).then((response) {
+    ExercisesService.getExercise(widget.id).then((response) {
+      setState(() {
+        if (response.$1 != null) {
+          _error = response.$1.toString();
+          _isLoading = false;
+        } else {
+          _exercise = response.$2;
+          _loadActivity(_exercise!.activities[_activityIndex].id);
+        }
+      });
+    });
+  }
+
+  Future<void> _loadActivity(String id) async {
+    setState((){
+      _isInitialized = false;
+      _isLoading = false;
+    });
+    ActivitiesService.getActivity(id).then((response) {
       setState(() {
         if (response.$1 != null) {
           _error = response.$1.toString();
         } else {
           _activity = response.$2;
+          _initializeVideoPlayer(id);
         }
         _isLoading = false;
       });
     });
   }
 
-  Future<void> _initializeVideoPlayer() async {
+  Future<void> _nextActivity() async {
+    _activityIndex++;
+    if (_exercise!.activities.length == _activityIndex) {
+      await showDialog(
+        // ignore: use_build_context_synchronously
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: const Text('Exercício concluído!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.go(RouteNames.activityPatientList);
+                },
+                child: const Text('Ok'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      videoFile = null;
+      _loadActivity(_exercise!.activities[_activityIndex].id);
+    }
+  }
+
+  Future<void> _initializeVideoPlayer(String id) async {
     try {
       final uri = ApiClient.getUri(
-        'activity/${widget.id.replaceAll('-', '')}/media',
+        'activity/${id.replaceAll('-', '')}/media',
       );
       _videoController = VideoPlayerController.networkUrl(
         uri,
@@ -100,7 +149,21 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    _activity!.title,
+                    "Exercício: ${_exercise!.title}",
+                    style: const TextStyle(
+                      fontSize: 35,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                  const Divider(
+                    height: 10,
+                    thickness: 1,
+                    indent: 0,
+                    endIndent: 0,
+                    color: Colors.grey,
+                  ),
+                  Text(
+                    "Atividade ${_activityIndex + 1}: ${_activity!.title}",
                     style: const TextStyle(
                       fontSize: 25,
                     ),
@@ -118,7 +181,6 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
                     _activity!.description,
                     style: const TextStyle(fontSize: 15, color: Colors.black54),
                   ),
-                  // _actions
                 ],
               ),
             ),
@@ -142,23 +204,14 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
                       await ImagePicker().pickVideo(source: ImageSource.camera);
 
                   if (videoFile != null) {
-                    _videoController =
-                        VideoPlayerController.file(File(videoFile!.path));
-                    await _videoController.initialize();
                     setState(() {
-                      _isInitialized = true;
-                      _error = null;
+                      print("camera is not null");
                     });
                   } else {
-                    setState(() {
-                      mock = true;
-                    });
                     print("camera is null");
                   }
                 } catch (e) {
-                  setState(() {
-                    mock = true;
-                  });
+                  print("Error: $e");
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -170,14 +223,50 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
               child: const Icon(Icons.camera_alt_rounded),
             ),
           ),
-          (videoFile != null || mock)
+          (videoFile != null)
               ? Padding(
                   padding: const EdgeInsets.only(bottom: 15),
                   child: ElevatedButton(
                     onPressed: () async {
-                      //send video...
-
-                      context.go(RouteNames.activityPatientList);
+                      setState((){_isLoading=true;});
+                      if (await AssignedExercisesService.saveActivityAttempt(
+                              AssignedExercisesService.id,
+                              activityId: _activity!.id,
+                              file: videoFile,
+                              done: _exercise!.activities.length == _activityIndex+1) ==
+                          200) {
+                        setState((){_isLoading=false;});
+                        _nextActivity();
+                      } else {
+                        setState((){_isLoading=false;});
+                        await showDialog(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              alignment: Alignment.center,
+                              icon: const Icon(Icons.dangerous,
+                                  color: Colors.red, size: 35),
+                              title: const Text(
+                                  'Ocorreu um erro durante o salvamento!'),
+                              titleTextStyle: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                              content: const Text("Tente novamente"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Ok'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        print("Error saving the attempt");
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       shape: const CircleBorder(),

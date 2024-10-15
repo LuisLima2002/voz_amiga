@@ -115,6 +115,11 @@ class NavigationPatientContainer extends StatelessWidget {
         selectedIcon: Icon(Icons.task_rounded),
         label: 'Atividades Paciente',
       ),
+      NavigationDestination(
+        icon: Icon(Icons.settings),
+        selectedIcon: Icon(Icons.settings_outlined),
+        label: 'Ajustes',
+      ),
       // NavigationDestination(
       //   icon: Icon(Icons.file_present),
       //   selectedIcon: Icon(Icons.file_present_outlined),

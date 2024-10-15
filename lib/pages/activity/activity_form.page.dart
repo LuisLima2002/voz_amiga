@@ -190,7 +190,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                 file: _file,
               );
 
-        if (res > 0) {
+        if (res == 200) {
           if (context.mounted) {
             await showDialog(
               // ignore: use_build_context_synchronously

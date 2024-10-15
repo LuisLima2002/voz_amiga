@@ -29,6 +29,7 @@ class RouteNames {
   static String activity(String id) => '/activity/$id';
 
   static const String homePatient = '/patientView/home';
+  static const String settingsPatient = '/patientView/settings';
   static const String activityPatientList = '/patientView/activityPatient';
   static String executeActivity(String id)  => '/patientView/activityPatient/$id';
 }
