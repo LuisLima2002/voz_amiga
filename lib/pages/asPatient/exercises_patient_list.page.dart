@@ -33,6 +33,22 @@ class _AssignedExercisesPatientListPageState
     super.dispose();
   }
 
+  bool _checkStatusOfExercise(AssignedExerciseDTO ae){    
+    if(ae.lastAttemptAt==null) return false;
+    
+    switch (ae.frequencyType) {
+      case 0:
+          return true;
+      case 1:
+          if(isSameDay(ae.lastAttemptAt!, DateTime.now())) return true;
+          break;
+      default:
+        break;
+    }
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,11 +84,7 @@ class _AssignedExercisesPatientListPageState
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
               color: Colors.deepPurpleAccent,
-              child: Container(
-                // decoration: const BoxDecoration(
-                //   gradient: LinearGradient(colors: [Colors.deepPurpleAccent,Colors.deepPurpleAccent,Color.fromARGB(255, 139, 77, 255),Colors.blueAccent])
-                // ),
-                child: ListTile(
+              child: ListTile(
                   onTap: () {
                     showDialog<String>(
                       context: context,
@@ -92,7 +104,7 @@ class _AssignedExercisesPatientListPageState
                                     fontSize: 23,
                                   ),
                                 ),
-                                Text(_exercises[index].status == 2 ? " Esse exercício já foi feito" : "",style: const TextStyle(fontSize: 12))
+                                Text(_checkStatusOfExercise(_exercises[index]) ? " Esse exercício já foi feito" : "",style: const TextStyle(fontSize: 12))
                               ],
                             ),
                           ),
@@ -144,14 +156,14 @@ class _AssignedExercisesPatientListPageState
                         fontSize: 18,
                         color: Colors.white),
                   ),
-                  leading: _exercises[index].status == 2
+                  leading: _checkStatusOfExercise(_exercises[index])
                       ? const Icon(Icons.done)
                       : null,
                   iconColor: Colors.white,
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _exercises[index].status == 2
+                      _checkStatusOfExercise(_exercises[index])
                           ? const Text(
                               "Exercício Feito",
                               style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
@@ -178,9 +190,26 @@ class _AssignedExercisesPatientListPageState
                     ],
                   ),
                 ),
-              ),
             );
           }),
     );
   }
+}
+
+bool isSameDay(DateTime date1, DateTime date2) {
+  return date1.year == date2.year &&
+         date1.month == date2.month &&
+         date1.day == date2.day;
+}
+
+bool isSameMonth(DateTime date1, DateTime date2) {
+  return date1.year == date2.year &&
+         date1.month == date2.month &&
+         date1.day == date2.day;
+}
+
+bool isSameYear(DateTime date1, DateTime date2) {
+  return date1.year == date2.year &&
+         date1.month == date2.month &&
+         date1.day == date2.day;
 }

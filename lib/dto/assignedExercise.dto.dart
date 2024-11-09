@@ -5,6 +5,7 @@ class AssignedExerciseDTO {
   final String id;
   final String assignedAt;
   final DateTime expectedConclusion;
+  final DateTime? lastAttemptAt;
   final int frequency;
   final int frequencyType;
   final Exercise exercise;
@@ -14,6 +15,7 @@ class AssignedExerciseDTO {
       {required this.id,
       required this.assignedAt,
       required this.expectedConclusion,
+      this.lastAttemptAt,
       required this.frequency,
       required this.frequencyType,
       required this.exercise,
@@ -22,11 +24,15 @@ class AssignedExerciseDTO {
   AssignedExerciseDTO.fromJSON(Map<String, dynamic> data)
       : id = data['id'] ?? '',
         assignedAt = data['assignedAt'] ?? DateTime.now(),
-        expectedConclusion = data['expectedConclusion']!=null
+        expectedConclusion = data['expectedConclusion'] != null
             ? DateFormat("yyyy-MM-dd'T'HH:mm:ss")
                 .parse(data['expectedConclusion'])
             : DateTime.now(),
-          frequency = data['frequency'] ?? 0,
+        lastAttemptAt = data['lastAttemptAt'] != null
+            ? DateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                .parse(data['expectedConclusion'])
+            : null,
+        frequency = data['frequency'] ?? 0,
         frequencyType = data['frequencyType'] ?? 0,
         exercise = Exercise.fromJSON(data['exercise']),
         status = data['status'] ?? 0;

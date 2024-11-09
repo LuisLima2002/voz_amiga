@@ -42,6 +42,7 @@ class LoginService {
 
     if (!result.hasErrors) {
       await _storage.write(key: 'jwt', value: result.content.token);
+      await _storage.write(key: 'name', value: result.content.name);
       await _storage.write(key: 'isPatient', value: result.content.isPatient.toString());
     }
     return result;
