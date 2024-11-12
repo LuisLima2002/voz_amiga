@@ -1,16 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:voz_amiga/components/app_bar.dart';
 
-class NavigationPatientContainer extends StatelessWidget {
+class NavigationPatientContainer extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
   final String title;
 
   const NavigationPatientContainer({
-    this.title = "Luigui",
+    this.title = "",
     Key? key,
     required this.navigationShell,
   }) : super(key: key ?? const ValueKey('NavigationPatientContainer'));
+
+  @override
+  State<NavigationPatientContainer> createState() =>
+      _NavigationPatientContainertate();
+}
+
+class _NavigationPatientContainertate
+    extends State<NavigationPatientContainer> {
+  String name = '';
+  @override
+  void initState() {
+    super.initState();
+    const FlutterSecureStorage().read(key: 'name').then((nameReaded) => {
+          setState(() {
+            name = nameReaded ?? "";
+          })
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +44,13 @@ class NavigationPatientContainer extends StatelessWidget {
 
   Widget _portraitLayout(BuildContext context) {
     return Scaffold(
-      body:navigationShell,
+      body: widget.navigationShell,
       appBar: VaAppBar(
-        title: title,
+        title: '${widget.title} - $name',
       ),
       bottomNavigationBar: NavigationBar(
         height: 60,
-        selectedIndex: navigationShell.currentIndex,
+        selectedIndex: widget.navigationShell.currentIndex,
         destinations: _destinations,
         onDestinationSelected: _goBranch,
       ),
@@ -55,7 +74,7 @@ class NavigationPatientContainer extends StatelessWidget {
               color: Colors.purple,
               fontWeight: FontWeight.w700,
             ),
-            selectedIndex: navigationShell.currentIndex,
+            selectedIndex: widget.navigationShell.currentIndex,
             onDestinationSelected: _goBranch,
             labelType: NavigationRailLabelType.none,
             destinations: _railDestinations,
@@ -63,7 +82,7 @@ class NavigationPatientContainer extends StatelessWidget {
           )
         : NavigationRail(
             extended: false,
-            selectedIndex: navigationShell.currentIndex,
+            selectedIndex: widget.navigationShell.currentIndex,
             onDestinationSelected: _goBranch,
             labelType: NavigationRailLabelType.all,
             destinations: _railDestinations,
@@ -71,7 +90,7 @@ class NavigationPatientContainer extends StatelessWidget {
 
     return Scaffold(
       appBar: VaAppBar(
-        title: title,
+        title: '${widget.title} - $name',
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -82,7 +101,7 @@ class NavigationPatientContainer extends StatelessWidget {
           const VerticalDivider(thickness: 1, width: 1),
           // Main content on the right (end)
           Expanded(
-            child: navigationShell,
+            child: widget.navigationShell,
           ),
         ],
       ),
@@ -113,7 +132,12 @@ class NavigationPatientContainer extends StatelessWidget {
       NavigationDestination(
         icon: Icon(Icons.task_outlined),
         selectedIcon: Icon(Icons.task_rounded),
-        label: 'Atividades Paciente',
+        label: 'Exercícios Paciente',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.settings),
+        selectedIcon: Icon(Icons.settings_outlined),
+        label: 'Ajustes',
       ),
       // NavigationDestination(
       //   icon: Icon(Icons.file_present),
@@ -129,9 +153,9 @@ class NavigationPatientContainer extends StatelessWidget {
   }
 
   void _goBranch(int index) {
-    navigationShell.goBranch(
+    widget.navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 }
