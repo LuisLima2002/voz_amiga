@@ -20,20 +20,18 @@ class NavigationPatientContainer extends StatefulWidget {
 
 class _NavigationPatientContainertate
     extends State<NavigationPatientContainer> {
-  
   String name = '';
- 
   @override
   void initState() {
     super.initState();
-    const FlutterSecureStorage().read(key: 'name').then((nameReaded)=>{
-      setState(() {
-        name = nameReaded ?? "";
-      })
-    });
+    const FlutterSecureStorage().read(key: 'name').then((nameReaded) => {
+          setState(() {
+            name = nameReaded ?? "";
+          })
+        });
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final mediaData = MediaQuery.of(context);
@@ -46,7 +44,7 @@ class _NavigationPatientContainertate
 
   Widget _portraitLayout(BuildContext context) {
     return Scaffold(
-      body:widget.navigationShell,
+      body: widget.navigationShell,
       appBar: VaAppBar(
         title: '${widget.title} - $name',
       ),
@@ -134,7 +132,7 @@ class _NavigationPatientContainertate
       NavigationDestination(
         icon: Icon(Icons.task_outlined),
         selectedIcon: Icon(Icons.task_rounded),
-        label: 'Atividades Paciente',
+        label: 'Exercícios Paciente',
       ),
       NavigationDestination(
         icon: Icon(Icons.settings),
@@ -160,4 +158,4 @@ class _NavigationPatientContainertate
       initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
-    }
+}

@@ -48,7 +48,7 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
   }
 
   Future<void> _loadActivity(String id) async {
-    setState((){
+    setState(() {
       _isInitialized = false;
       _isLoading = false;
     });
@@ -78,7 +78,7 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  context.go(RouteNames.activityPatientList);
+                  context.go(RouteNames.exercisesPatientList);
                 },
                 child: const Text('Ok'),
               ),
@@ -196,7 +196,8 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
       children: [
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Padding(
-            padding: const EdgeInsets.only(right: 20, bottom: 15),
+            padding:
+                EdgeInsets.only(right: videoFile != null ? 20 : 0, bottom: 15),
             child: ElevatedButton(
               onPressed: () async {
                 try {
@@ -228,17 +229,24 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
                   padding: const EdgeInsets.only(bottom: 15),
                   child: ElevatedButton(
                     onPressed: () async {
-                      setState((){_isLoading=true;});
+                      setState(() {
+                        _isLoading = true;
+                      });
                       if (await AssignedExercisesService.saveActivityAttempt(
                               AssignedExercisesService.id,
                               activityId: _activity!.id,
                               file: videoFile,
-                              done: _exercise!.activities.length == _activityIndex+1) ==
+                              done: _exercise!.activities.length ==
+                                  _activityIndex + 1) ==
                           200) {
-                        setState((){_isLoading=false;});
+                        setState(() {
+                          _isLoading = false;
+                        });
                         _nextActivity();
                       } else {
-                        setState((){_isLoading=false;});
+                        setState(() {
+                          _isLoading = false;
+                        });
                         await showDialog(
                           // ignore: use_build_context_synchronously
                           context: context,

@@ -29,8 +29,7 @@ class AssignedExerciseDTO {
                 .parse(data['expectedConclusion'])
             : DateTime.now(),
         lastAttemptAt = data['lastAttemptAt'] != null
-            ? DateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                .parse(data['expectedConclusion'])
+            ? DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(data['lastAttemptAt'])
             : null,
         frequency = data['frequency'] ?? 0,
         frequencyType = data['frequencyType'] ?? 0,

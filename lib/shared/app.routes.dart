@@ -273,14 +273,14 @@ class AppRouteConfig {
             navigatorKey: activitiesPatientPageKey,
             routes: [
               GoRoute(
-                  name: 'Atividades Paciente',
-                  path: RouteNames.activityPatientList,
+                  name: 'Exercícios Paciente',
+                  path: RouteNames.exercisesPatientList,
                   builder: (context, state) {
                     return const AssignedExercisesPatientListPage();
                   },
                   routes: [
                     GoRoute(
-                      name: 'Realizando Atividade',
+                      name: 'Realizando Exercício',
                       path: ':id',
                       builder: (context, state) {
                         return ExecuteActivityPage(

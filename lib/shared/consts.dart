@@ -10,8 +10,6 @@ class RouteNames {
   static String editExercise(String id) => '/exercise/$id/form';
   static String exercise(String id) => '/exercise/$id';
 
-
-  
   static const String activityList = '/activity';
   static const String exercisesList = '/exercises';
   static const String newActivity = '/activity/new/form';
@@ -30,8 +28,9 @@ class RouteNames {
 
   static const String homePatient = '/patientView/home';
   static const String settingsPatient = '/patientView/settings';
-  static const String activityPatientList = '/patientView/activityPatient';
-  static String executeActivity(String id)  => '/patientView/activityPatient/$id';
+  static const String exercisesPatientList = '/patientView/exercisePatient';
+  static String executeExercise(String id) =>
+      '/patientView/exercisePatient/$id';
 }
 
 AppBar createAppBar({
