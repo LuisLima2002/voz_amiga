@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:voz_amiga/pages/asPatient/execute_activity.page.dart';
+import 'package:voz_amiga/pages/asPatient/settings_patient.page.dart';
 import 'package:voz_amiga/pages/exercises/exercise_form.page.dart';
 import 'package:voz_amiga/pages/exercises/exercise_viewer.dart';
 import 'package:voz_amiga/infra/services/login.service.dart';
@@ -21,6 +23,7 @@ import 'package:voz_amiga/pages/activity/activity_list.page.dart';
 import 'package:voz_amiga/pages/navigation_container.page.dart';
 import 'package:voz_amiga/pages/login.page.dart';
 import 'package:voz_amiga/pages/activity/activity_form.page.dart';
+import 'package:voz_amiga/pages/asPatient/exercises_patient_list.page.dart';
 import 'package:voz_amiga/pages/activity/activity_viewer.dart';
 import 'package:voz_amiga/pages/exercises/exercises_list.page.dart';
 import 'package:voz_amiga/pages/home.page.dart';
@@ -37,8 +40,14 @@ class AppRouteConfig {
       routes: _getAplicationRoutes(),
       redirect: (context, state) async {
         final res = await LoginService().isLoggedIn();
-        if (!res) {
+        if (res.token == null) {
           return RouteNames.login;
+        } else if (res.isPatient &&
+            !state.fullPath!.contains("/patientView/")) {
+          return RouteNames.homePatient;
+        } else if (!res.isPatient &&
+            state.fullPath!.contains("/patientView/")) {
+          return RouteNames.home;
         }
         return null;
       },
@@ -49,8 +58,14 @@ class AppRouteConfig {
     final innerPagesKey = GlobalKey<NavigatorState>(
       debugLabel: 'homePageNavigation',
     );
+    final innerPatientPagesKey = GlobalKey<NavigatorState>(
+      debugLabel: 'homePatientPageNavigation',
+    );
     final activitiesPageKey = GlobalKey<NavigatorState>(
       debugLabel: 'activitiesPageNavigation',
+    );
+    final activitiesPatientPageKey = GlobalKey<NavigatorState>(
+      debugLabel: 'activitiesPatientPageNavigation',
     );
     final exercisesPageKey = GlobalKey<NavigatorState>(
       debugLabel: 'exercisesPageNavigation',
@@ -71,7 +86,7 @@ class AppRouteConfig {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state, navigationShell) {
           return NavigationContainer(
-            title: state.topRoute?.name ?? 'Voz Amiga',
+            title: state.topRoute?.name ?? 'Home Paciente',
             navigationShell: navigationShell,
           );
         },
@@ -234,11 +249,59 @@ class AppRouteConfig {
         path: RouteNames.login,
         builder: (context, state) => const LoginPage(),
       ),
-      GoRoute(
-        name: 'Home Paciente',
-        path: RouteNames.homePatient,
-        builder: (context, state) =>
-            const NavigationPatientContainer(navigationShell: null),
+      StatefulShellRoute.indexedStack(
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state, navigationShell) {
+          return NavigationPatientContainer(
+            title: state.topRoute?.name ?? 'Paciente',
+            navigationShell: navigationShell,
+          );
+        },
+        branches: [
+          StatefulShellBranch(
+            navigatorKey: innerPatientPagesKey,
+            routes: [
+              GoRoute(
+                  name: 'Home Paciente',
+                  path: RouteNames.homePatient,
+                  builder: (context, state) {
+                    return const HomePage();
+                  })
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: activitiesPatientPageKey,
+            routes: [
+              GoRoute(
+                  name: 'Exercícios Paciente',
+                  path: RouteNames.exercisesPatientList,
+                  builder: (context, state) {
+                    return const AssignedExercisesPatientListPage();
+                  },
+                  routes: [
+                    GoRoute(
+                      name: 'Realizando Exercício',
+                      path: ':id',
+                      builder: (context, state) {
+                        return ExecuteActivityPage(
+                          id: state.pathParameters['id']!,
+                        );
+                      },
+                    ),
+                  ]),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: settingsPageKey,
+            routes: [
+              GoRoute(
+                name: 'Ajustes Paciente',
+                path: RouteNames.settingsPatient,
+                builder: (context, state) => const SettingsPagePatient(),
+              ),
+            ],
+          )
+        ],
       ),
     ];
   }

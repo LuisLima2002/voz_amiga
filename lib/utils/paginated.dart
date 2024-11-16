@@ -4,6 +4,14 @@ class Paginated<T> {
   final int total;
   final List<T> result;
 
+  
+  const Paginated({
+    required this.page,
+    required this.itensPerPage,
+    required this.total,
+    required this.result,
+  });
+
   Paginated.fromJson({
     required Map<String, dynamic> response,
     required List<T> Function(List<dynamic>) parseList,
@@ -17,4 +25,5 @@ class Paginated<T> {
         itensPerPage = -1,
         total = -1,
         result = <T>[];
+
 }
