@@ -17,9 +17,8 @@ class PatientsListPage extends StatefulWidget {
 }
 
 class _PatientsListPageState extends State<PatientsListPage> {
-  
-  final filterController  = TextEditingController();
-  String _orderBy= "";
+  final filterController = TextEditingController();
+  String _orderBy = "";
   @override
   void initState() {
     super.initState();
@@ -52,11 +51,10 @@ class _PatientsListPageState extends State<PatientsListPage> {
   Future<void> _fetchPage(int pageKey) async {
     try {
       final (error, patients) = await PatientsService.getPatients(
-        filter: filterController.text,
-        page: pageKey,
-        pageSize: _numberOfPostsPerRequest,
-        orderBy: _orderBy
-      );
+          filter: filterController.text,
+          page: pageKey,
+          pageSize: _numberOfPostsPerRequest,
+          orderBy: _orderBy);
       final isLastPage =
           patients.total <= patients.itensPerPage * patients.page;
       if (error != null) {
@@ -66,7 +64,8 @@ class _PatientsListPageState extends State<PatientsListPage> {
           PatientsService.pagingController.appendLastPage(patients.result);
         } else {
           final nextPageKey = pageKey + 1;
-          PatientsService.pagingController.appendPage(patients.result, nextPageKey);
+          PatientsService.pagingController
+              .appendPage(patients.result, nextPageKey);
         }
       }
     } catch (e) {
@@ -77,7 +76,8 @@ class _PatientsListPageState extends State<PatientsListPage> {
 
   Widget _body(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: () => Future.sync(() => PatientsService.pagingController.refresh()),
+      onRefresh: () =>
+          Future.sync(() => PatientsService.pagingController.refresh()),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -100,30 +100,35 @@ class _PatientsListPageState extends State<PatientsListPage> {
                 Flexible(
                   flex: 2,
                   child: DropdownButtonFormField(
-                      decoration:
-                          const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 5)),
+                      decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 5)),
                       hint: const Text("Ordenar"),
-                      items: ['Data de criação','Nome', 'Nome do responsável', 'Data de nascimento']
+                      items: [
+                        'Data de criação',
+                        'Nome',
+                        'Nome do responsável',
+                        'Data de nascimento'
+                      ]
                           .map((String unit) => DropdownMenuItem<String>(
                               value: unit, child: Text(unit)))
                           .toList(),
                       onChanged: (value) => setState(() {
-                        switch(value){
-                          case "Nome":
-                          _orderBy="name";
-                          break;
-                          case "Nome do responsável":
-                          _orderBy="nameResponsible";
-                          break;
-                          case "Data de nascimento":
-                          _orderBy="birthdate";
-                          break;
-                          default:
-                          _orderBy="";
-                          break;
-                        }
-                        PatientsService.pagingController.refresh();
-                      })),
+                            switch (value) {
+                              case "Nome":
+                                _orderBy = "name";
+                                break;
+                              case "Nome do responsável":
+                                _orderBy = "nameResponsible";
+                                break;
+                              case "Data de nascimento":
+                                _orderBy = "birthdate";
+                                break;
+                              default:
+                                _orderBy = "";
+                                break;
+                            }
+                            PatientsService.pagingController.refresh();
+                          })),
                 )
               ],
             ),
@@ -204,11 +209,11 @@ class _PatientsListPageState extends State<PatientsListPage> {
           ),
         ],
       ),
-      child: _title(context,item),
+      child: _title(context, item),
     );
   }
 
-   Widget _title(BuildContext context, PatientDTO item) {
+  Widget _title(BuildContext context, PatientDTO item) {
     return ListTile(
       onTap: () {
         context.go(RouteNames.patient(item.id));
@@ -240,7 +245,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 IconButton(
-                 onPressed: () {
+                  onPressed: () {
                     context.go(RouteNames.editPatient(id));
                   },
                   icon: const Icon(
@@ -253,5 +258,4 @@ class _PatientsListPageState extends State<PatientsListPage> {
           )
         : null;
   }
-
 }

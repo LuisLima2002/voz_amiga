@@ -22,6 +22,11 @@ class RouteNames {
   static String editProfessional(String id) => '/professional/$id/form';
   static String professional(String id) => '/professional/$id';
   static String editPatient(String id) => '/patient/$id/form';
+  static String assignedExercise(String id, String idAssignedExercise) =>
+      '/patient/$id/AssignedExercise/$idAssignedExercise';
+  static String activityAttempts(
+          String id, String idAssignedExercise, String idActivityAttempt) =>
+      '/patient/$id/AssignedExercise/$idAssignedExercise/$idActivityAttempt';
   static String patient(String id) => '/patient/$id';
   static String editActivity(String id) => '/activity/$id/form';
   static String activity(String id) => '/activity/$id';

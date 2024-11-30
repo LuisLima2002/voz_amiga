@@ -8,6 +8,8 @@ import 'package:voz_amiga/pages/exercises/exercise_form.page.dart';
 import 'package:voz_amiga/pages/exercises/exercise_viewer.dart';
 import 'package:voz_amiga/infra/services/login.service.dart';
 import 'package:voz_amiga/pages/asPatient/profile.page.dart';
+import 'package:voz_amiga/pages/patients/patient_activity_attempt_viewer.page.dart';
+import 'package:voz_amiga/pages/patients/patient_assigned_exercise_viewer.page.dart';
 import 'package:voz_amiga/pages/patients/patient_form.page.dart';
 import 'package:voz_amiga/pages/patients/patient_viewer.dart';
 import 'package:voz_amiga/pages/patients/patients_list.page.dart';
@@ -207,6 +209,33 @@ class AppRouteConfig {
                   GoRoute(
                     name: 'Paciente',
                     path: ':id',
+                    routes: [
+                      GoRoute(
+                        name: 'Exercício atribuído',
+                        path: 'AssignedExercise/:idAssignedExercise',
+                        routes: [
+                          GoRoute(
+                            name: 'Tentativas da atividade',
+                            path: ':idActivityAttempt',
+                            builder: (context, state) {
+                              return PatientActivityAttemptsViewerPage(
+                                assignedExerciseId:
+                                    state.pathParameters['idAssignedExercise']!,
+                                activityId:
+                                    state.pathParameters['idActivityAttempt']!,
+                              );
+                            },
+                          ),
+                        ],
+                        builder: (context, state) {
+                          return PatientAssignedExerciseViewerPage(
+                            idPatient: state.pathParameters['id']!,
+                            idAssignedExercise:
+                                state.pathParameters['idAssignedExercise']!,
+                          );
+                        },
+                      ),
+                    ],
                     builder: (context, state) {
                       return PatientViewerPage(
                         id: state.pathParameters['id']!,
@@ -214,7 +243,7 @@ class AppRouteConfig {
                     },
                   ),
                   GoRoute(
-                    name: 'Novo paciente',
+                    name: 'Dados do paciente',
                     path: ':id/form',
                     builder: (context, state) {
                       return PatientFormPage(
