@@ -55,6 +55,7 @@ dependencies:
   logging: ^1.2.0
   image_picker: ^1.1.2
   mobx: ^2.3.3+2
+  flutter_datetime_picker_plus: ^2.1.0
   
 dev_dependencies:
   flutter_test:

@@ -86,7 +86,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
             child: Row(
               children: <Widget>[
                 Flexible(
-                  flex: 8,
+                  flex: 2,
                   child: TextFormField(
                     controller: filterController,
                     onChanged: (text) {

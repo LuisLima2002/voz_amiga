@@ -11,6 +11,7 @@ import 'package:voz_amiga/pages/asPatient/profile.page.dart';
 import 'package:voz_amiga/pages/patients/patient_activity_attempt_viewer.page.dart';
 import 'package:voz_amiga/pages/patients/patient_assigned_exercise_viewer.page.dart';
 import 'package:voz_amiga/pages/patients/patient_form.page.dart';
+import 'package:voz_amiga/pages/patients/patient_frequency_report.dart';
 import 'package:voz_amiga/pages/patients/patient_viewer.dart';
 import 'package:voz_amiga/pages/patients/patients_list.page.dart';
 import 'package:voz_amiga/pages/professionals/professional_form.page.dart';
@@ -232,6 +233,15 @@ class AppRouteConfig {
                             idPatient: state.pathParameters['id']!,
                             idAssignedExercise:
                                 state.pathParameters['idAssignedExercise']!,
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        name: 'Relatório de frequencia',
+                        path: 'frequencyReport',
+                        builder: (context, state) {
+                          return PatientFrequencyReportPage(
+                            id: state.pathParameters['id']!,
                           );
                         },
                       ),

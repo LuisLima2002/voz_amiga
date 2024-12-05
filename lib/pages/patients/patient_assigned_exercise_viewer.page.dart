@@ -59,7 +59,7 @@ class _PatientAssignedExerciseViewerPageState
                       child: Row(
                         children: <Widget>[
                           Text(
-                            assignedExercise.exercise.title,
+                            assignedExercise.exercise!.title,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 25,
@@ -90,7 +90,7 @@ class _PatientAssignedExerciseViewerPageState
                     Expanded(
                       child: ListView.builder(
                           itemCount:
-                              assignedExercise.exercise.activities.length,
+                              assignedExercise.exercise!.activities.length,
                           itemBuilder: (_, index) {
                             return Card(
                               margin: const EdgeInsets.symmetric(
@@ -102,11 +102,11 @@ class _PatientAssignedExerciseViewerPageState
                                       widget.idPatient,
                                       widget.idAssignedExercise,
                                       assignedExercise
-                                          .exercise.activities[index].id));
+                                          .exercise!.activities[index].id));
                                 },
                                 title: Text(
                                   assignedExercise
-                                      .exercise.activities[index].name,
+                                      .exercise!.activities[index].name,
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,

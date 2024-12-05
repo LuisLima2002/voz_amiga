@@ -58,15 +58,51 @@ class _PatientViewerPageState extends State<PatientViewerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.go(RouteNames.editPatient(widget.id));
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        clipBehavior: Clip.antiAlias,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.edit),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          IconButton(
+            onPressed: () {
+              context.go(RouteNames.patientFrequencyReport(widget.id));
+            },
+            icon: const Icon(Icons.calendar_today),
+            color: Theme.of(context).colorScheme.onPrimary,
+            iconSize: 26.0, // Increases the size of the icon
+            splashRadius: 36.0, // Makes the interactive area larger
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(
+                  Theme.of(context).colorScheme.primary),
+              shape: MaterialStateProperty.all(const CircleBorder()),
+              padding: MaterialStateProperty.all(const EdgeInsets.all(14.0)),
+            ),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          IconButton(
+            onPressed: () {
+              context.go(RouteNames.editPatient(widget.id));
+            },
+            icon: const Icon(Icons.edit),
+            color: Theme.of(context).colorScheme.onPrimary,
+            iconSize: 26.0, // Increases the size of the icon
+            splashRadius: 36.0, // Makes the interactive area larger
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(
+                  Theme.of(context).colorScheme.primary),
+              shape: MaterialStateProperty.all(const CircleBorder()),
+              padding: MaterialStateProperty.all(const EdgeInsets.all(14.0)),
+            ),
+          ),
+          // FloatingActionButton(
+          //   onPressed: () {},
+          //   backgroundColor: Theme.of(context).colorScheme.primary,
+          //   foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          //   clipBehavior: Clip.antiAlias,
+          //   shape: const CircleBorder(),
+          //   child: const Icon(Icons.calendar_today),
+          // ),
+        ],
       ),
       body: FutureBuilder<(dynamic, PatientDTO?)>(
         future: _patientFuture,
@@ -196,7 +232,7 @@ class _PatientViewerPageState extends State<PatientViewerPage> {
         // ),
         // trailing: _trailing(context),
         title: Text(
-          item.exercise.title,
+          item.exercise!.title,
           style: const TextStyle(
               fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
@@ -217,7 +253,7 @@ class _PatientViewerPageState extends State<PatientViewerPage> {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    item.exercise.description,
+                    item.exercise!.description,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: const TextStyle(color: Colors.white60),

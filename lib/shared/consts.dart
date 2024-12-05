@@ -28,6 +28,8 @@ class RouteNames {
           String id, String idAssignedExercise, String idActivityAttempt) =>
       '/patient/$id/AssignedExercise/$idAssignedExercise/$idActivityAttempt';
   static String patient(String id) => '/patient/$id';
+  static String patientFrequencyReport(String id) =>
+      '/patient/$id/frequencyReport';
   static String editActivity(String id) => '/activity/$id/form';
   static String activity(String id) => '/activity/$id';
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:voz_amiga/dto/frequencyReport.dto.dart';
 
 import 'package:voz_amiga/dto/patient.dto.dart';
 import 'package:voz_amiga/shared/client.dart';
@@ -46,6 +47,20 @@ class PatientsService {
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body);
       return (null, PatientDTO.fromJSON(body));
+    } else {
+      return (jsonDecode(response.body), null);
+    }
+  }
+
+  static Future<(dynamic, FrequencyReportDTO?)> getFrequencyReport(
+      String patientId, DateTime selectedMonth) async {
+    final String uri = '$_frag/frequencyreport/$patientId';
+    final response = await ApiClient.get(uri,
+        params: {"selectedMonth": selectedMonth.toString()});
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      return (null, FrequencyReportDTO.fromJSON(body));
     } else {
       return (jsonDecode(response.body), null);
     }
