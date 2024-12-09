@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
-// import 'package:voz_amiga/components/video_player.dart';
-import 'package:voz_amiga/infra/services/activities.service.dart';
+import 'package:voz_amiga/features/profissional/activity/services/activities.service.dart';
+import 'package:voz_amiga/utils/toastr.dart';
 
 class ActivityFormPage extends StatefulWidget {
   final String? id;
@@ -126,7 +126,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                         _fileError = false;
                         _file = result.files[0];
                         _fileName = null;
-                        _mime = null;
+                        _mime = lookupMimeType(result.files[0].name);
                       });
                     }
                   },
@@ -190,25 +190,9 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                 file: _file,
               );
 
-        if (res == 200) {
-          if (context.mounted) {
-            await showDialog(
-              // ignore: use_build_context_synchronously
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: const Text('Salvo com sucesso!'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Ok'),
-                    ),
-                  ],
-                );
-              },
-            );
+        if (res == '200') {
+          if (mounted) {
+            Toastr.success(context, 'Salvo com sucesso!');
           }
           setState(() {
             _formKey.currentState?.reset();

@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 import 'package:voz_amiga/dto/activity.dto.dart';
-import 'package:voz_amiga/infra/services/activities.service.dart';
+import 'package:voz_amiga/infra/log/logger.dart';
+import 'package:voz_amiga/features/profissional/activity/services/activities.service.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/shared/consts.dart';
 
@@ -61,7 +62,7 @@ class _ActivityViewerPageState extends State<ActivityViewerPage> {
         _error = null;
       });
     } catch (e) {
-      print("Error initializing video player: $e");
+      logger.e("Error initializing video player: $e");
       setState(() {
         _isInitialized = true;
         _error = 'Não foi possível carregar o vídeo';
@@ -159,6 +160,25 @@ class _ActivityViewerPageState extends State<ActivityViewerPage> {
                 children: [
                   Icon(Icons.delete_forever),
                   Text('Excluir'),
+                ],
+              ),
+            ),
+          ),
+          Flexible(
+            fit: FlexFit.tight,
+            child: ElevatedButton(
+              onPressed: () {
+                context.go(RouteNames.assignActivity(widget.id));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                shape: const ContinuousRectangleBorder(),
+              ),
+              child: const Column(
+                children: [
+                  Icon(Icons.person_add_alt_1),
+                  Text('Atribuir'),
                 ],
               ),
             ),

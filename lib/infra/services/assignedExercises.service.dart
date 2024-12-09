@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:voz_amiga/dto/ActivityAttemptDTO.dto.dart';
 import 'package:voz_amiga/dto/assignedExercise.dto.dart';
+import 'package:voz_amiga/infra/log/logger.dart';
 // import 'package:voz_amiga/dto/exercise.dto.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/utils/paginated.dart';
@@ -100,7 +101,7 @@ class AssignedExercisesService {
     final uri = ApiClient.getUri('$_frag/attempt');
 
     var request = http.MultipartRequest('POST', uri);
-    print(uri);
+    logger.t(uri);
     request.fields.addAll({
       'assignedExerciseId': id,
       'activityId': activityId,
@@ -118,7 +119,7 @@ class AssignedExercisesService {
       final response = await request.send();
       return response.statusCode;
     } catch (e) {
-      print(e);
+      logger.e(e);
       rethrow;
     }
   }

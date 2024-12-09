@@ -253,7 +253,7 @@ class _PatientFormPageState extends State<PatientFormPage> {
           }
         },
         child: const Text('Select date'),
-      )
+      ),
     ];
   }
 

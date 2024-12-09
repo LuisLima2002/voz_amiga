@@ -1,5 +1,14 @@
 import 'package:voz_amiga/dto/activityOfExercise.dto.dart';
 
+class ExerciseActivity {
+  final String id;
+  final String name;
+
+  ExerciseActivity.fromJSON(Map<String, dynamic> data)
+      : id = data['id'] ?? '',
+        name = data['name'] ?? '';
+}
+
 class Exercise {
   final String id;
   final String title;
@@ -19,14 +28,19 @@ class Exercise {
       : id = data['id'] ?? '',
         title = data['title'] ?? '',
         description = data['description'] ?? '',
-        activities = data['activities'] !=null ? parseActivies(data['activities']) : [],
+        activities =
+            data['activities'] != null ? parseActivies(data['activities']) : [],
         points = data['points'] ?? 0;
+
   @override
   String toString() {
     return '[${super.toString()}]: $id, $title, $points';
   }
 }
 
-List<ActivityOfExerciseDTO> parseActivies(List<dynamic> jsonActivies){
-  return jsonActivies.map<ActivityOfExerciseDTO>((jsonActivity)=>ActivityOfExerciseDTO.fromJSON(jsonActivity)).toList();
+List<ActivityOfExerciseDTO> parseActivies(List<dynamic> jsonActivies) {
+  return jsonActivies
+      .map<ActivityOfExerciseDTO>(
+          (jsonActivity) => ActivityOfExerciseDTO.fromJSON(jsonActivity))
+      .toList();
 }

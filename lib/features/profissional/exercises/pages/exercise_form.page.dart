@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:voz_amiga/infra/services/exercises.service.dart';
+import 'package:voz_amiga/features/profissional/exercises/services/exercises.service.dart';
 import 'package:voz_amiga/shared/consts.dart';
 import 'package:voz_amiga/utils/toastr.dart';
 
@@ -198,7 +198,7 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
       keyboardType: TextInputType.text,
       decoration: const InputDecoration(
         contentPadding: EdgeInsets.symmetric(horizontal: 4),
-        hintText: "Nome da atividade",
+        hintText: "Título do exercício",
         labelText: "Título",
         floatingLabelBehavior: FloatingLabelBehavior.always,
         hintStyle: TextStyle(

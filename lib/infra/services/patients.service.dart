@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:voz_amiga/dto/frequencyReport.dto.dart';
 
 import 'package:voz_amiga/dto/patient.dto.dart';
+import 'package:voz_amiga/infra/log/logger.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/utils/paginated.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -87,7 +88,7 @@ class PatientsService {
       pagingController.refresh();
       return response.statusCode;
     } catch (e) {
-      print('at saving: $e');
+      logger.e('at saving: $e');
       rethrow;
     }
   }
@@ -98,7 +99,7 @@ class PatientsService {
       pagingController.refresh();
       return response.statusCode;
     } catch (e) {
-      print('at saving: $e');
+      logger.e('at saving: $e');
       rethrow;
     }
   }

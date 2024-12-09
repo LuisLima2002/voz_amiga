@@ -5,7 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:voz_amiga/dto/activity.dto.dart';
-import 'package:voz_amiga/infra/services/activities.service.dart';
+import 'package:voz_amiga/features/profissional/activity/services/activities.service.dart';
 import 'package:voz_amiga/shared/consts.dart';
 import 'package:voz_amiga/utils/platform_utils.dart';
 import 'package:voz_amiga/utils/string_utils.dart';

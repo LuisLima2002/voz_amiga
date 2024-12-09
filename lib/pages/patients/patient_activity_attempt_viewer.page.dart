@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:video_player/video_player.dart';
 import 'package:voz_amiga/dto/ActivityAttemptDTO.dto.dart';
 import 'package:voz_amiga/dto/activity.dto.dart';
-import 'package:voz_amiga/infra/services/activities.service.dart';
+import 'package:voz_amiga/features/profissional/activity/services/activities.service.dart';
 import 'package:voz_amiga/infra/services/assignedExercises.service.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:image_picker/image_picker.dart';

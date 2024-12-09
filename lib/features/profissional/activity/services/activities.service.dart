@@ -5,6 +5,8 @@ import 'package:mime/mime.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:voz_amiga/dto/activity.dto.dart';
+import 'package:voz_amiga/enum/result_type.dart';
+import 'package:voz_amiga/infra/log/logger.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/utils/paginated.dart';
 
@@ -21,25 +23,25 @@ class ActivitiesService {
       'page': page.toString(),
       'pageSize': pageSize.toString(),
     };
-    final response = await ApiClient.get(_frag, params: params);
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
+    final response = await Api.get(_frag, params: params);
+
+    if (response.type == ResultType.success) {
       return (
         null,
         Paginated.fromJson(
-          response: body,
+          response: response.value,
           parseList: (l) => l.map((d) => ActivityDTO.fromJSON(d)).toList(),
         ),
       );
     } else {
       return (
-        jsonDecode(response.body),
+        response.value,
         Paginated<ActivityDTO>.empty(),
       );
     }
   }
 
-  static Future<int> save({
+  static Future<String> save({
     required String title,
     required String description,
     required int points,
@@ -52,6 +54,7 @@ class ActivitiesService {
       'title': title,
       'description': description,
       'points': '$points',
+      'mediaType': lookupMimeType(file.name) ?? "unknown",
     });
     final multipartFile = await http.MultipartFile.fromPath(
       'media',
@@ -61,9 +64,13 @@ class ActivitiesService {
     request.files.add(multipartFile);
     try {
       final response = await request.send();
-      return response.statusCode;
+      final parseResponse = await http.Response.fromStream(response);
+      logger.t(
+        'Request to "$_frag" wiht $request\nwith response ${parseResponse.body}',
+      );
+      return parseResponse.body;
     } catch (e) {
-      print(e);
+      logger.e(e);
       rethrow;
     }
   }
@@ -73,12 +80,12 @@ class ActivitiesService {
       final response = await ApiClient.get('$_frag/$id');
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
-        print(body);
+        logger.t(body);
         return (null, ActivityDTO.fromJSON(body));
       }
       return ('Não encontrado', null);
     } catch (e) {
-      print(e);
+      logger.e(e);
       return ('Falha ao se comunicar com o servidor', null);
     }
   }
@@ -87,7 +94,7 @@ class ActivitiesService {
     try {
       await ApiClient.delete('$_frag/$id');
     } catch (e) {
-      print(e);
+      logger.e(e);
       return 'Falha ao se comunicar com o servidor';
     }
   }
@@ -101,7 +108,7 @@ class ActivitiesService {
   }) async {
     final uri = ApiClient.getUri('$_frag/$id');
     var request = http.MultipartRequest('PUT', uri);
-    print(uri);
+    logger.t(uri);
     request.fields.addAll({
       'title': title,
       'description': description,
@@ -119,7 +126,7 @@ class ActivitiesService {
       final response = await request.send();
       return response.statusCode;
     } catch (e) {
-      print(e);
+      logger.e(e);
       rethrow;
     }
   }

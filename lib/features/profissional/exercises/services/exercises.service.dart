@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:voz_amiga/dto/exercise.dto.dart';
+import 'package:voz_amiga/enum/result_type.dart';
+import 'package:voz_amiga/infra/log/logger.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/utils/paginated.dart';
 
@@ -16,19 +18,18 @@ class ExercisesService {
       'page': page.toString(),
       'pageSize': pageSize.toString(),
     };
-    final response = await ApiClient.get(_frag, params: params);
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
+    final response = await Api.get(_frag, params: params);
+    if (response.type == ResultType.success) {
       return (
         null,
         Paginated.fromJson(
-          response: body,
+          response: response.value,
           parseList: (l) => l.map((d) => Exercise.fromJSON(d)).toList(),
         ),
       );
     } else {
       return (
-        jsonDecode(response.body),
+        jsonDecode(response.value),
         Paginated<Exercise>.empty(),
       );
     }
@@ -48,7 +49,7 @@ class ExercisesService {
       String newExerciseId = jsonDecode(response.body)['id'];
       return newExerciseId;
     } catch (e) {
-      print(e);
+      logger.e(e);
       rethrow;
     }
   }
@@ -58,12 +59,12 @@ class ExercisesService {
       final response = await ApiClient.get('$_frag/$id');
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
-        print(body);
+        logger.t(body);
         return (null, Exercise.fromJSON(body));
       }
       return ('Não encontrado', null);
     } catch (e) {
-      print(e);
+      logger.e(e);
       return ('Falha ao se comunicar com o servidor', null);
     }
   }
@@ -72,7 +73,7 @@ class ExercisesService {
     try {
       await ApiClient.delete('$_frag/$id');
     } catch (e) {
-      print(e);
+      logger.e(e);
       return 'Falha ao se comunicar com o servidor';
     }
   }
@@ -91,7 +92,42 @@ class ExercisesService {
       });
       return jsonDecode(response.body)['id'];
     } catch (e) {
-      print(e);
+      logger.e(e);
+      rethrow;
+    }
+  }
+
+  static Future<void> addActivityToExercise({
+    required String exerciseId,
+    required String activityId,
+  }) async {
+    //
+    try {
+      final response = await ApiClient.put('$_frag/$exerciseId/activity', {
+        'exerciseId': exerciseId,
+        'activityId': activityId,
+        'status': true,
+      });
+      return jsonDecode(response.body)['message'];
+    } catch (e) {
+      logger.e(e);
+      rethrow;
+    }
+  }
+
+  static Future removeActivityFromService({
+    required String exerciseId,
+    required String activityId,
+  }) async {
+    try {
+      final response = await ApiClient.put('$_frag/$exerciseId/activity', {
+        'exerciseId': exerciseId,
+        'activityId': activityId,
+        'status': false,
+      });
+      return jsonDecode(response.body)['message'];
+    } catch (e) {
+      logger.e(e);
       rethrow;
     }
   }

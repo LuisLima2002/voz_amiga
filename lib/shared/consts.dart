@@ -8,10 +8,11 @@ class RouteNames {
 
   static String newExercise = '/exercise/new/form';
   static String editExercise(String id) => '/exercise/$id/form';
+  static String assignExercise(String id) => '/exercise/$id/assign';
   static String exercise(String id) => '/exercise/$id';
 
   static const String activityList = '/activity';
-  static const String exercisesList = '/exercises';
+  static const String exercisesList = '/exercise';
   static const String newActivity = '/activity/new/form';
   static const String patientsList = '/patient';
   static const String newPatient = '/patient/new/form';
@@ -28,9 +29,11 @@ class RouteNames {
           String id, String idAssignedExercise, String idActivityAttempt) =>
       '/patient/$id/AssignedExercise/$idAssignedExercise/$idActivityAttempt';
   static String patient(String id) => '/patient/$id';
+  static String patientReports(String id) => '/patient/$id/reports';
   static String patientFrequencyReport(String id) =>
       '/patient/$id/frequencyReport';
   static String editActivity(String id) => '/activity/$id/form';
+  static String assignActivity(String id) => '/activity/$id/assign';
   static String activity(String id) => '/activity/$id';
 
   static const String homePatient = '/patientView/home';
