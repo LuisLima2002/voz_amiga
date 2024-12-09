@@ -3,16 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:voz_amiga/features/profissional/exercises/models/assignment_data.dart';
 
 class AssignExerviseForm extends StatefulWidget {
-  final String exerciseId;
-  final List<String> patients;
-
   final VoidCallback onCancel;
   final void Function(AssignmentData) onAssign;
 
   const AssignExerviseForm({
     super.key,
-    required this.exerciseId,
-    required this.patients,
     required this.onCancel,
     required this.onAssign,
   });

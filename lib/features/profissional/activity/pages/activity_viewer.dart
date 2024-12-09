@@ -149,6 +149,25 @@ class _ActivityViewerPageState extends State<ActivityViewerPage> {
             fit: FlexFit.tight,
             child: ElevatedButton(
               onPressed: () {
+                context.push(RouteNames.assignActivity(widget.id));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                shape: const ContinuousRectangleBorder(),
+              ),
+              child: const Column(
+                children: [
+                  Icon(Icons.person_add_alt_1),
+                  Text('Atribuir'),
+                ],
+              ),
+            ),
+          ),
+          Flexible(
+            fit: FlexFit.tight,
+            child: ElevatedButton(
+              onPressed: () {
                 _deleteActivity();
               },
               style: ElevatedButton.styleFrom(

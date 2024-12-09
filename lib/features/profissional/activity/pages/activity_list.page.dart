@@ -257,6 +257,15 @@ class _ActivityListPageState extends State<ActivityListPage> {
                 ),
                 IconButton(
                   onPressed: () {
+                    context.push(RouteNames.assignActivity(activity.id));
+                  },
+                  icon: const Icon(
+                    Icons.assignment,
+                    color: Colors.green,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
                     _deleteActivity(activity);
                   },
                   icon: const Icon(

@@ -131,7 +131,7 @@ class AppRouteConfig {
                     name: 'Atribuir Atividade',
                     builder: (context, state) {
                       return AssignActivityPage(
-                        exerciseId: state.pathParameters['id']!,
+                        activityId: state.pathParameters['id']!,
                       );
                     },
                   ),

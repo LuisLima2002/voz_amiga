@@ -56,31 +56,7 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
-      // mainAxisSize: MainAxisSize.min,
       children: [
-        // Container(
-        //   height: MediaQuery.of(context).size.height * .3,
-        //   decoration: const BoxDecoration(color: Colors.black),
-        //   child: Center(
-        //     child: Material(
-        //       elevation: 1,
-        //       child: Container(
-        //         width: MediaQuery.of(context).size.height * .5,
-        //         decoration: const BoxDecoration(
-        //           color: Colors.black12,
-        //         ),
-        //         child: const Placeholder(
-        //           child: Center(
-        //             child: Text(
-        //               '[WIP]',
-        //               style: TextStyle(fontSize: 30),
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //     ),
-        //   ),
-        // ),
         Padding(
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
@@ -105,23 +81,6 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
                     fontSize: 20,
                   ),
                 ),
-                // Container(
-                //   padding: const EdgeInsets.all(4),
-                //   width: double.infinity,
-                //   decoration: BoxDecoration(
-                //     border: Border.all(
-                //       color: Colors.black12,
-                //       width: 2,
-                //     ),
-                //     borderRadius: const BorderRadius.all(Radius.circular(4)),
-                //   ),
-                //   child: Text(
-                //     _exercise!.description,
-                //     style: const TextStyle(
-                //       fontSize: 20,
-                //     ),
-                //   ),
-                // ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

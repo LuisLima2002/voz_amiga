@@ -1,11 +1,12 @@
 import 'package:voz_amiga/enum/result_type.dart';
 import 'package:voz_amiga/features/profissional/exercises/models/assignment_data.dart';
 import 'package:voz_amiga/features/profissional/exercises/models/patient.model.dart';
-import 'package:voz_amiga/infra/log/logger.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/utils/paginated.dart';
 
 class AssignExerciseService {
+  static const _frag = 'assign/exercise';
+
   ///
   static Future<(String? error, Paginated<Patient>?)> getPatients({
     required String exerciseId,
@@ -21,7 +22,7 @@ class AssignExerciseService {
       'status': status,
     };
     final result = await Api.get(
-      'assign/$exerciseId/unasigned-patients',
+      '$_frag/$exerciseId/unasigned-patients',
       params: params,
     );
     if (result.type == ResultType.success) {
@@ -40,7 +41,7 @@ class AssignExerciseService {
   }
 
   static Future<String?> assign(String exerciseId, AssignmentData data) async {
-    final result = await Api.post('assign/exercise', {
+    final result = await Api.post(_frag, {
       'exerciseId': exerciseId,
       ...data.toMap(),
     });

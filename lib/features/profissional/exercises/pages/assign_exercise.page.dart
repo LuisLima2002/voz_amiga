@@ -258,8 +258,6 @@ class _AssignExercisePageState extends State<AssignExercisePage> {
         context: context,
         builder: (modalContext) {
           return AssignExerviseForm(
-            exerciseId: widget.exerciseId,
-            patients: patients,
             onAssign: (data) {
               modalContext.pop(data);
             },

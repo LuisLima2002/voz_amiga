@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:voz_amiga/dto/assignedExercise.dto.dart';
 import 'package:voz_amiga/dto/patient.dto.dart';
-import 'package:voz_amiga/infra/log/logger.dart';
 import 'package:voz_amiga/infra/services/patients.service.dart';
 import 'package:voz_amiga/infra/services/assignedExercises.service.dart';
 import 'package:voz_amiga/shared/consts.dart';
