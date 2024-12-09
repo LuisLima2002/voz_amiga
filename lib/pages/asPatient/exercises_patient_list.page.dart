@@ -230,7 +230,7 @@ class _AssignedExercisesPatientListPageState
                                       _selectedExercisesList[index].id;
                                   context.push(RouteNames.executeExercise(
                                       _selectedExercisesList[index]
-                                          .exercise
+                                          .exercise!
                                           .id));
                                 }
                               },
@@ -242,7 +242,7 @@ class _AssignedExercisesPatientListPageState
                           // ),
                           // trailing: _trailing(context),
                           title: Text(
-                            _selectedExercisesList[index].exercise.title,
+                            _selectedExercisesList[index].exercise!.title,
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -271,7 +271,7 @@ class _AssignedExercisesPatientListPageState
                                     flex: 3,
                                     child: Text(
                                       _selectedExercisesList[index]
-                                          .exercise
+                                          .exercise!
                                           .description,
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,

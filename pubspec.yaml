@@ -57,6 +57,7 @@ dependencies:
   mobx: ^2.3.3+2
   logger: ^2.5.0
   graphic: ^2.5.0
+  flutter_datetime_picker_plus: ^2.1.0
   
 dev_dependencies:
   flutter_test:

@@ -16,6 +16,7 @@ class PatientFormPage extends StatefulWidget {
 
 class _PatientFormPageState extends State<PatientFormPage> {
   PatientDTO? _patientFuture;
+  bool _isLoading = true;
   late Map<String, TextEditingController> _controllers;
   final _formKey = GlobalKey<FormState>(debugLabel: 'patientForm');
   @override
@@ -31,21 +32,27 @@ class _PatientFormPageState extends State<PatientFormPage> {
     };
     if (widget.id != '') {
       loadPatient();
+    } else {
+      _isLoading = false;
     }
   }
 
   void loadPatient() async {
     _patientFuture = (await PatientsService.getPatient(widget.id!)).$2;
-    if (_patientFuture != null) {
-      _controllers['name']!.text = _patientFuture!.name;
-      _controllers['birthdate']!.text = DateFormat('dd/MM/yyyy')
-          .format(DateTime.parse(_patientFuture!.birthdate));
-      _controllers['emergencyContact']!.text = _patientFuture!.emergencyContact;
-      _controllers['cpfPatient']!.text = _patientFuture!.cpfPatient;
-      _controllers['nameResponsable']!.text = _patientFuture!.nameResponsible;
-      _controllers['responsibleDocument']!.text =
-          _patientFuture!.responsibleDocument;
-    }
+    setState(() {
+      _isLoading = false;
+      if (_patientFuture != null) {
+        _controllers['name']!.text = _patientFuture!.name;
+        _controllers['birthdate']!.text = DateFormat('dd/MM/yyyy')
+            .format(DateTime.parse(_patientFuture!.birthdate));
+        _controllers['emergencyContact']!.text =
+            _patientFuture!.emergencyContact;
+        _controllers['cpfPatient']!.text = _patientFuture!.cpfPatient;
+        _controllers['nameResponsable']!.text = _patientFuture!.nameResponsible;
+        _controllers['responsibleDocument']!.text =
+            _patientFuture!.responsibleDocument;
+      }
+    });
   }
 
   @override
@@ -58,49 +65,51 @@ class _PatientFormPageState extends State<PatientFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 15),
-              _nameFormField,
-              const SizedBox(height: 10),
-              ..._birthdateFormField,
-              const SizedBox(height: 10),
-              _emergencyContactFormField,
-              const SizedBox(height: 10),
-              _cpfPatientFormField,
-              const SizedBox(height: 10),
-              _nameResponsableFormField,
-              const SizedBox(height: 10),
-              _responsibleDocumentFormField,
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
-                  ),
-                  onPressed: () async {
-                    await _save();
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Text(
-                      "Salvar",
-                      style: TextStyle(fontSize: 20, color: Colors.white),
+    return _isLoading
+        ? _loadingState()
+        : SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 15),
+                    _nameFormField,
+                    const SizedBox(height: 10),
+                    ..._birthdateFormField,
+                    const SizedBox(height: 10),
+                    _emergencyContactFormField,
+                    const SizedBox(height: 10),
+                    _cpfPatientFormField,
+                    const SizedBox(height: 10),
+                    _nameResponsableFormField,
+                    const SizedBox(height: 10),
+                    _responsibleDocumentFormField,
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple,
+                        ),
+                        onPressed: () async {
+                          await _save();
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Text(
+                            "Salvar",
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
   }
 
   Future<void> _save() async {
@@ -169,6 +178,24 @@ class _PatientFormPageState extends State<PatientFormPage> {
         );
       }
     }
+  }
+
+  Widget _loadingState() {
+    return const Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: 50),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [CircularProgressIndicator()],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 15),
+          child: Text('Carregando...'),
+        ),
+      ],
+    );
   }
 
   Widget get _nameFormField {
