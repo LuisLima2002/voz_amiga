@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
 import 'package:voz_amiga/dto/professional.dto.dart';
+import 'package:voz_amiga/infra/log/logger.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:voz_amiga/utils/paginated.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -11,12 +12,8 @@ class ProfessionalsService {
   static const _storage = FlutterSecureStorage();
   static PagingController<int, ProfessionalDTO> pagingController =
       PagingController(firstPageKey: 0);
-  static Future<(dynamic, Paginated<ProfessionalDTO>)> getProfessionals({
-    String? filter,
-    int? page,
-    int? pageSize,
-    String? orderBy
-  }) async {
+  static Future<(dynamic, Paginated<ProfessionalDTO>)> getProfessionals(
+      {String? filter, int? page, int? pageSize, String? orderBy}) async {
     final response = await ApiClient.get(_frag, params: {
       "filter": filter ?? "",
       "page": page.toString(),
@@ -62,57 +59,41 @@ class ProfessionalsService {
     required String email,
   }) async {
     try {
-      var response = await ApiClient.post(
-      _frag,
-      {
-        "name": name,
-        "email": email
-      }
-    );
-        pagingController.refresh();
+      var response =
+          await ApiClient.post(_frag, {"name": name, "email": email});
+      pagingController.refresh();
       return response.body;
     } catch (e) {
-      print('at saving: $e');
+      logger.e('at saving: $e');
       rethrow;
     }
   }
 
-static  Future<Response>  changePassword({
-    required String password,
-    required String newPassword
-  }) async {
+  static Future<Response> changePassword(
+      {required String password, required String newPassword}) async {
     try {
-      var response = await ApiClient.put(
-      "$_frag/changepassword",
-      {
+      var response = await ApiClient.put("$_frag/changepassword", {
         "token": await _storage.read(key: 'jwt'),
-        "password":password,
-        "newPassword":newPassword
-      }
-    );
+        "password": password,
+        "newPassword": newPassword
+      });
       return response;
     } catch (e) {
-      print('at saving: $e');
+      logger.e('at saving: $e');
       rethrow;
     }
   }
 
-static Future<int> update({
-    required ProfessionalDTO patient
-  }) async {
+  static Future<int> update({required ProfessionalDTO patient}) async {
     try {
-      var response = await ApiClient.put(
-      _frag,
-      patient.toJson()
-    );
+      var response = await ApiClient.put(_frag, patient.toJson());
       pagingController.refresh();
       return response.statusCode;
     } catch (e) {
-      print('at saving: $e');
+      logger.e('at saving: $e');
       rethrow;
     }
   }
-  
 
   static Future<int> delete({
     required String id,
@@ -130,7 +111,7 @@ static Future<int> update({
       if (response.statusCode != 200) throw Error();
       return response.body;
     } catch (e) {
-      print('at saving: $e');
+      logger.e('at saving: $e');
       rethrow;
     }
   }

@@ -4,10 +4,10 @@ class ResultWithBody<T> extends Result {
   late T? _content;
 
   @override
-  ResultWithBody.parseJSON(
+  ResultWithBody.fromJSON(
     dynamic data,
     T Function(Map<String, dynamic> data) bodyParser,
-  ) : super.parseJSON(data) {
+  ) : super.fromJSON(data) {
     try {
       if (data['messages'] == null) {
         _content = bodyParser(data);
@@ -22,7 +22,7 @@ class ResultWithBody<T> extends Result {
     throw Exception("Invalid access of result with error");
   }
 
-  ResultWithBody.of(T data) : super.parseJSON({}) {
+  ResultWithBody.of(T data) : super.fromJSON({}) {
     _content = data;
   }
 }
@@ -31,7 +31,7 @@ class Result {
   @protected
   late List<String>? _errors;
 
-  Result.parseJSON(dynamic data) {
+  Result.fromJSON(dynamic data) {
     try {
       if (data['messages'] != null) {
         _errors = (data['messages'] as List<dynamic>)

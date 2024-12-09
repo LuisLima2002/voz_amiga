@@ -4,9 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 import 'package:voz_amiga/dto/activity.dto.dart';
 import 'package:voz_amiga/dto/exercise.dto.dart';
-import 'package:voz_amiga/infra/services/activities.service.dart';
+import 'package:voz_amiga/infra/log/logger.dart';
+import 'package:voz_amiga/features/profissional/activity/services/activities.service.dart';
 import 'package:voz_amiga/infra/services/assignedExercises.service.dart';
-import 'package:voz_amiga/infra/services/exercises.service.dart';
+import 'package:voz_amiga/features/profissional/exercises/services/exercises.service.dart';
 import 'package:voz_amiga/shared/client.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:voz_amiga/shared/consts.dart';
@@ -110,7 +111,7 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
         _error = null;
       });
     } catch (e) {
-      print("Error initializing video player: $e");
+      logger.e("Error initializing video player: $e");
       setState(() {
         _isInitialized = true;
         _error = 'Não foi possível carregar o vídeo';
@@ -206,13 +207,13 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
 
                   if (videoFile != null) {
                     setState(() {
-                      print("camera is not null");
+                      logger.t("camera is not null");
                     });
                   } else {
-                    print("camera is null");
+                    logger.t("camera is null");
                   }
                 } catch (e) {
-                  print("Error: $e");
+                  logger.e("Error: $e");
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -273,7 +274,7 @@ class _ExecuteActivityPageState extends State<ExecuteActivityPage> {
                             );
                           },
                         );
-                        print("Error saving the attempt");
+                        logger.e("Error saving the attempt");
                       }
                     },
                     style: ElevatedButton.styleFrom(

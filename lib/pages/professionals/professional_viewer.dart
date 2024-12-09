@@ -264,7 +264,9 @@ class _ProfessionalViewerPageState extends State<ProfessionalViewerPage> {
       if (await ProfessionalsService.delete(id: widget.id) != 200) {
         throw Error();
       } else {
-        context.go(RouteNames.professionalsList);
+        if (mounted) {
+          context.go(RouteNames.professionalsList);
+        }
       }
     } catch (e) {
       showDialog(

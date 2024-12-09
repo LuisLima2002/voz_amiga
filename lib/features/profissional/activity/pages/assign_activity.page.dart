@@ -2,24 +2,26 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:voz_amiga/dto/patient.dto.dart';
-import 'package:voz_amiga/infra/log/logger.dart';
 import 'package:voz_amiga/infra/services/patients.service.dart';
-import 'package:voz_amiga/shared/consts.dart';
-import 'package:voz_amiga/utils/platform_utils.dart';
+import 'package:voz_amiga/utils/toastr.dart';
 
-class PatientsListPage extends StatefulWidget {
-  const PatientsListPage({super.key});
+class AssignActivityPage extends StatefulWidget {
+  final String exerciseId;
+  const AssignActivityPage({
+    super.key,
+    required this.exerciseId,
+  });
 
   @override
-  State<PatientsListPage> createState() => _PatientsListPageState();
+  State<AssignActivityPage> createState() => _AssignActivityPageState();
 }
 
-class _PatientsListPageState extends State<PatientsListPage> {
+class _AssignActivityPageState extends State<AssignActivityPage> {
   final filterController = TextEditingController();
   String _orderBy = "";
+  final _checked = <int, bool>{};
   @override
   void initState() {
     super.initState();
@@ -36,13 +38,13 @@ class _PatientsListPageState extends State<PatientsListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.go(RouteNames.newPatient);
+          Toastr.success(context, 'Atribuidas com sucesso');
         },
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         clipBehavior: Clip.antiAlias,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.assignment_add),
       ),
     );
   }
@@ -70,7 +72,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
         }
       }
     } catch (e) {
-      logger.e("error --> $e");
+      // print("error --> $e");
       PatientsService.pagingController.error = e;
     }
   }
@@ -101,36 +103,42 @@ class _PatientsListPageState extends State<PatientsListPage> {
                 Flexible(
                   flex: 2,
                   child: DropdownButtonFormField(
-                      decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 5)),
-                      hint: const Text("Ordenar"),
-                      items: [
-                        'Data de criação',
-                        'Nome',
-                        'Nome do responsável',
-                        'Data de nascimento'
-                      ]
-                          .map((String unit) => DropdownMenuItem<String>(
-                              value: unit, child: Text(unit)))
-                          .toList(),
-                      onChanged: (value) => setState(() {
-                            switch (value) {
-                              case "Nome":
-                                _orderBy = "name";
-                                break;
-                              case "Nome do responsável":
-                                _orderBy = "nameResponsible";
-                                break;
-                              case "Data de nascimento":
-                                _orderBy = "birthdate";
-                                break;
-                              default:
-                                _orderBy = "";
-                                break;
-                            }
-                            PatientsService.pagingController.refresh();
-                          })),
-                )
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                    ),
+                    hint: const Text("Ordenar"),
+                    items: [
+                      'Data de criação',
+                      'Nome',
+                      'Nome do responsável',
+                      'Data de nascimento'
+                    ]
+                        .map((String unit) => DropdownMenuItem<String>(
+                              value: unit,
+                              child: Text(unit),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        switch (value) {
+                          case "Nome":
+                            _orderBy = "name";
+                            break;
+                          case "Nome do responsável":
+                            _orderBy = "nameResponsible";
+                            break;
+                          case "Data de nascimento":
+                            _orderBy = "birthdate";
+                            break;
+                          default:
+                            _orderBy = "";
+                            break;
+                        }
+                        PatientsService.pagingController.refresh();
+                      });
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -205,21 +213,23 @@ class _PatientsListPageState extends State<PatientsListPage> {
             label: 'Editar',
             icon: Icons.edit_outlined,
             onPressed: (context) {
-              context.go(RouteNames.editPatient(item.id));
+              // context.go(RouteNames.editPatient(item.id));
             },
           ),
         ],
       ),
-      child: _title(context, item),
+      child: _title(context, item, index),
     );
   }
 
-  Widget _title(BuildContext context, PatientDTO item) {
-    return ListTile(
-      onTap: () {
-        context.go(RouteNames.patient(item.id));
+  Widget _title(BuildContext context, PatientDTO item, int index) {
+    return CheckboxListTile(
+      onChanged: (v) {
+        setState(() {
+          _checked[index] = v ?? false;
+        });
       },
-      trailing: _trailing(context, item.id),
+      value: _checked[index] ?? false,
       title: Text(
         item.name,
         style: const TextStyle(
@@ -233,30 +243,5 @@ class _PatientsListPageState extends State<PatientsListPage> {
         maxLines: 2,
       ),
     );
-  }
-
-  Widget? _trailing(BuildContext context, String id) {
-    return MediaQuery.of(context).screenType == ScreenType.tablet ||
-            MediaQuery.of(context).screenType == ScreenType.desktop
-        ? SizedBox(
-            height: double.infinity,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    context.go(RouteNames.editPatient(id));
-                  },
-                  icon: const Icon(
-                    Icons.edit_document,
-                    color: Colors.blueAccent,
-                  ),
-                )
-              ],
-            ),
-          )
-        : null;
   }
 }

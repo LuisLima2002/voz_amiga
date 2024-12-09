@@ -55,6 +55,8 @@ dependencies:
   logging: ^1.2.0
   image_picker: ^1.1.2
   mobx: ^2.3.3+2
+  logger: ^2.5.0
+  graphic: ^2.5.0
   
 dev_dependencies:
   flutter_test:

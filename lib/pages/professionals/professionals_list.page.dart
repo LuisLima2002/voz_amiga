@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:voz_amiga/dto/professional.dto.dart';
+import 'package:voz_amiga/infra/log/logger.dart';
 import 'package:voz_amiga/infra/services/professionals.service.dart';
 import 'package:voz_amiga/shared/consts.dart';
 import 'package:voz_amiga/utils/platform_utils.dart';
@@ -51,11 +52,10 @@ class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
   Future<void> _fetchPage(int pageKey) async {
     try {
       final (error, items) = await ProfessionalsService.getProfessionals(
-        filter: filterController.text,
-        page: pageKey,
-        pageSize: _numberOfPostsPerRequest,
-        orderBy: _orderBy
-      );
+          filter: filterController.text,
+          page: pageKey,
+          pageSize: _numberOfPostsPerRequest,
+          orderBy: _orderBy);
       final isLastPage = items.total <= items.itensPerPage * items.page;
       if (error != null) {
         ProfessionalsService.pagingController.error = error;
@@ -69,12 +69,10 @@ class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
         }
       }
     } catch (e) {
-      print("error --> $e");
+      logger.e("error --> $e");
       ProfessionalsService.pagingController.error = e;
     }
   }
-
-
 
   Widget _body(BuildContext context) {
     return RefreshIndicator(
@@ -102,27 +100,27 @@ class _ProfessionalsListPageState extends State<ProfessionalsListPage> {
                 Flexible(
                   flex: 2,
                   child: DropdownButtonFormField(
-                      decoration:
-                          const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 5)),
+                      decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 5)),
                       hint: const Text("Ordenar"),
-                      items: ['Data de criação','Nome', 'Email']
+                      items: ['Data de criação', 'Nome', 'Email']
                           .map((String unit) => DropdownMenuItem<String>(
                               value: unit, child: Text(unit)))
                           .toList(),
                       onChanged: (value) => setState(() {
-                        switch(value){
-                          case "Nome":
-                          _orderBy="name";
-                          break;
-                          case "Email":
-                          _orderBy="email";
-                          break;
-                          default:
-                          _orderBy="";
-                          break;
-                        }
-                        ProfessionalsService.pagingController.refresh();
-                      })),
+                            switch (value) {
+                              case "Nome":
+                                _orderBy = "name";
+                                break;
+                              case "Email":
+                                _orderBy = "email";
+                                break;
+                              default:
+                                _orderBy = "";
+                                break;
+                            }
+                            ProfessionalsService.pagingController.refresh();
+                          })),
                 )
               ],
             ),

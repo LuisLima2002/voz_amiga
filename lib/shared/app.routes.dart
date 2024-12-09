@@ -2,15 +2,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:voz_amiga/features/profissional/activity/pages/assign_activity.page.dart';
 import 'package:voz_amiga/pages/asPatient/execute_activity.page.dart';
 import 'package:voz_amiga/pages/asPatient/settings_patient.page.dart';
-import 'package:voz_amiga/pages/exercises/exercise_form.page.dart';
-import 'package:voz_amiga/pages/exercises/exercise_viewer.dart';
+import 'package:voz_amiga/features/profissional/exercises/pages/assign_exercise.page.dart';
+import 'package:voz_amiga/features/profissional/exercises/pages/exercise_form.page.dart';
+import 'package:voz_amiga/features/profissional/exercises/pages/exercise_viewer.dart';
 import 'package:voz_amiga/infra/services/login.service.dart';
 import 'package:voz_amiga/pages/asPatient/profile.page.dart';
 import 'package:voz_amiga/pages/patients/patient_form.page.dart';
 import 'package:voz_amiga/pages/patients/patient_viewer.dart';
 import 'package:voz_amiga/pages/patients/patients_list.page.dart';
+import 'package:voz_amiga/pages/patients/patient_reports.page.dart';
 import 'package:voz_amiga/pages/professionals/professional_form.page.dart';
 import 'package:voz_amiga/pages/professionals/professional_viewer.dart';
 import 'package:voz_amiga/pages/professionals/professionals_list.page.dart';
@@ -19,13 +22,13 @@ import 'package:voz_amiga/pages/settings/settings.page.dart';
 // other
 import 'package:voz_amiga/shared/consts.dart';
 // pages
-import 'package:voz_amiga/pages/activity/activity_list.page.dart';
+import 'package:voz_amiga/features/profissional/activity/pages/activity_list.page.dart';
 import 'package:voz_amiga/pages/navigation_container.page.dart';
 import 'package:voz_amiga/pages/login.page.dart';
-import 'package:voz_amiga/pages/activity/activity_form.page.dart';
+import 'package:voz_amiga/features/profissional/activity/pages/activity_form.page.dart';
 import 'package:voz_amiga/pages/asPatient/exercises_patient_list.page.dart';
-import 'package:voz_amiga/pages/activity/activity_viewer.dart';
-import 'package:voz_amiga/pages/exercises/exercises_list.page.dart';
+import 'package:voz_amiga/features/profissional/activity/pages/activity_viewer.dart';
+import 'package:voz_amiga/features/profissional/exercises/pages/exercises_list.page.dart';
 import 'package:voz_amiga/pages/home.page.dart';
 
 class AppRouteConfig {
@@ -121,6 +124,15 @@ class AppRouteConfig {
                     },
                   ),
                   GoRoute(
+                    path: ':id/assign',
+                    name: 'Atribuir Atividade',
+                    builder: (context, state) {
+                      return AssignActivityPage(
+                        exerciseId: state.pathParameters['id']!,
+                      );
+                    },
+                  ),
+                  GoRoute(
                     name: 'Nova Atividade',
                     path: ':id/form',
                     builder: (context, state) {
@@ -137,29 +149,39 @@ class AppRouteConfig {
             navigatorKey: exercisesPageKey,
             routes: [
               GoRoute(
-                  name: 'Exercícios',
-                  path: RouteNames.exercisesList,
-                  builder: (context, state) => const ExercisesListPage(),
-                  routes: [
-                    GoRoute(
-                      name: 'Exercicio',
-                      path: ':id',
-                      builder: (context, state) {
-                        return ExerciseViewerPage(
-                          id: state.pathParameters['id']!,
-                        );
-                      },
-                    ),
-                    GoRoute(
-                      name: 'Novo Exercicio',
-                      path: ':id/form',
-                      builder: (context, state) {
-                        return ExerciseFormPage(
-                          id: state.pathParameters['id'],
-                        );
-                      },
-                    ),
-                  ]),
+                name: 'Exercícios',
+                path: RouteNames.exercisesList,
+                builder: (context, state) => const ExercisesListPage(),
+                routes: [
+                  GoRoute(
+                    name: 'Exercicio',
+                    path: ':id',
+                    builder: (context, state) {
+                      return ExerciseViewerPage(
+                        id: state.pathParameters['id']!,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: ':id/assign',
+                    name: 'Atribuir Exercício',
+                    builder: (context, state) {
+                      return AssignExercisePage(
+                        exerciseId: state.pathParameters['id']!,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    name: 'Novo Exercicio',
+                    path: ':id/form',
+                    builder: (context, state) {
+                      return ExerciseFormPage(
+                        id: state.pathParameters['id'],
+                      );
+                    },
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(
@@ -209,6 +231,15 @@ class AppRouteConfig {
                     path: ':id',
                     builder: (context, state) {
                       return PatientViewerPage(
+                        id: state.pathParameters['id']!,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    name: 'Relatorios',
+                    path: ':id/reports',
+                    builder: (context, state) {
+                      return PatientReportsPage(
                         id: state.pathParameters['id']!,
                       );
                     },

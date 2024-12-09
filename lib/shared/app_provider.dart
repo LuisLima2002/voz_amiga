@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:voz_amiga/infra/services/activities.service.dart';
+import 'package:voz_amiga/features/profissional/activity/services/activities.service.dart';
 import 'package:voz_amiga/infra/services/login.service.dart';
 import 'package:voz_amiga/infra/services/patients.service.dart';
 import 'package:voz_amiga/shared/client.dart';

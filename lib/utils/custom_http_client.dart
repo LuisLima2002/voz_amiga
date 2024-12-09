@@ -14,3 +14,9 @@ class CustomHttpClient extends BaseClient {
     return request.send();
   }
 }
+
+extension IsSucessfullResponse on Response {
+  bool get isSuccess {
+    return statusCode >= 200 && statusCode < 300;
+  }
+}

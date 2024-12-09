@@ -21,7 +21,8 @@ class LoginService {
 
   Future<LoginInfo> isLoggedIn() async {
     final token = await _storage.read(key: 'jwt');
-    final bool  isPatient = bool.parse(await _storage.read(key: 'isPatient') ?? "false");
+    final bool isPatient =
+        bool.parse(await _storage.read(key: 'isPatient') ?? "false");
     return LoginInfo(token: token, isPatient: isPatient);
   }
 
@@ -35,7 +36,7 @@ class LoginService {
     );
     var decoded = jsonDecode(response.body);
 
-    var result = ResultWithBody<AuthResponseDTO>.parseJSON(
+    var result = ResultWithBody<AuthResponseDTO>.fromJSON(
       decoded,
       (data) => AuthResponseDTO.fromJSON(data),
     );
@@ -43,14 +44,15 @@ class LoginService {
     if (!result.hasErrors) {
       await _storage.write(key: 'jwt', value: result.content.token);
       await _storage.write(key: 'name', value: result.content.name);
-      await _storage.write(key: 'isPatient', value: result.content.isPatient.toString());
+      await _storage.write(
+          key: 'isPatient', value: result.content.isPatient.toString());
     }
     return result;
   }
 }
 
-class LoginInfo{
-  LoginInfo({required this.token,required this.isPatient});
+class LoginInfo {
+  LoginInfo({required this.token, required this.isPatient});
 
   final String? token;
   final bool isPatient;

@@ -32,12 +32,6 @@ class Exercise {
             data['activities'] != null ? parseActivies(data['activities']) : [],
         points = data['points'] ?? 0;
 
-  static _handleList(dynamic data) {
-    if (data == null || data is! List) return null;
-
-    return data.map((a) => ExerciseActivity.fromJSON(a)).toList();
-  }
-
   @override
   String toString() {
     return '[${super.toString()}]: $id, $title, $points';

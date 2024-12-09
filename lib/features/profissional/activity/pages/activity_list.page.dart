@@ -4,23 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:voz_amiga/dto/exercise.dto.dart';
-import 'package:voz_amiga/infra/services/exercises.service.dart';
-import 'package:voz_amiga/pages/exercises/widgets/empty_search.w.dart';
-import 'package:voz_amiga/pages/exercises/widgets/first_try_error.w.dart';
+import 'package:voz_amiga/dto/activity.dto.dart';
+import 'package:voz_amiga/features/profissional/activity/services/activities.service.dart';
 import 'package:voz_amiga/shared/consts.dart';
 import 'package:voz_amiga/utils/platform_utils.dart';
 import 'package:voz_amiga/utils/string_utils.dart';
-import 'package:voz_amiga/utils/toastr.dart';
 
-class ExercisesListPage extends StatefulWidget {
-  const ExercisesListPage({super.key});
+class ActivityListPage extends StatefulWidget {
+  const ActivityListPage({super.key});
 
   @override
-  State<ExercisesListPage> createState() => _ExercisesListPageState();
+  State<ActivityListPage> createState() => _ActivityListPageState();
 }
 
-class _ExercisesListPageState extends State<ExercisesListPage> {
+class _ActivityListPageState extends State<ActivityListPage> {
   Timer? _debounce;
   final TextEditingController _filterController = TextEditingController();
 
@@ -55,7 +52,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.push(RouteNames.newExercise).then((_) {
+          context.push(RouteNames.newActivity).then((_) {
             Future.sync(() => _pagingController.refresh());
           });
         },
@@ -70,28 +67,32 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
 
   final _numberOfPostsPerRequest = 10;
 
-  final PagingController<int, Exercise> _pagingController =
+  final PagingController<int, ActivityDTO> _pagingController =
       PagingController(firstPageKey: 0);
 
   Future<void> _fetchPage(int pageKey) async {
     // try {
-    final (error, exercises) = await ExercisesService.getExercises(
+    final (error, activities) = await ActivitiesService.getActivities(
       filter: _filterController.text,
       page: pageKey,
       pageSize: _numberOfPostsPerRequest,
     );
     final isLastPage =
-        exercises.total <= (exercises.itensPerPage * exercises.page);
+        activities.total <= (activities.itensPerPage * activities.page);
     if (error != null) {
       _pagingController.error = error;
     } else {
       if (isLastPage) {
-        _pagingController.appendLastPage(exercises.result);
+        _pagingController.appendLastPage(activities.result);
       } else {
         final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(exercises.result, nextPageKey);
+        _pagingController.appendPage(activities.result, nextPageKey);
       }
     }
+    // } catch (e) {
+    // print("error --> $e");
+    // _pagingController.error = e;
+    // }
   }
 
   @pragma('vm:prefer-inline')
@@ -114,7 +115,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
           SlidableAutoCloseBehavior(
             closeWhenOpened: true,
             child: Expanded(
-              child: PagedListView<int, Exercise>.separated(
+              child: PagedListView<int, ActivityDTO>.separated(
                 separatorBuilder: (context, index) {
                   return SizedBox(
                     height: 0.5,
@@ -124,16 +125,45 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
                   );
                 },
                 pagingController: _pagingController,
-                builderDelegate: PagedChildBuilderDelegate<Exercise>(
+                builderDelegate: PagedChildBuilderDelegate<ActivityDTO>(
                   itemBuilder: _buildTile,
                   noItemsFoundIndicatorBuilder: (context) {
-                    return const EmptySearch();
-                  },
-                  newPageErrorIndicatorBuilder: (context) {
-                    return const Text('Ocorreu um erro!');
+                    return const Center(
+                      child: Text(
+                        "Algo deu errado!\nTente novamente",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 55, 170, 223),
+                        ),
+                      ),
+                    );
                   },
                   firstPageErrorIndicatorBuilder: (context) {
-                    return const FirstTryError();
+                    return const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.dangerous,
+                          color: Color(0xFF770000),
+                          size: 35,
+                        ),
+                        Text(
+                          "Algo deu errado!",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Color(0xFF770000),
+                          ),
+                        ),
+                        Text(
+                          "Tenta mais tarde",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF770000),
+                          ),
+                        ),
+                      ],
+                    );
                   },
                 ),
               ),
@@ -145,7 +175,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
   }
 
   @pragma('vm:prefer-inline')
-  Widget _buildTile(BuildContext context, Exercise item, int index) {
+  Widget _buildTile(BuildContext context, ActivityDTO item, int index) {
     return Slidable(
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
@@ -155,8 +185,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
             label: 'Editar',
             icon: Icons.edit_outlined,
             onPressed: (context) {
-              context.push(RouteNames.editExercise(item.id)).then((_) {
-                print('fresh');
+              context.push(RouteNames.editActivity(item.id)).then((_) {
                 Future.sync(() => _pagingController.refresh());
               });
             },
@@ -168,17 +197,23 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
   }
 
   @pragma('vm:prefer-inline')
-  Widget _tile(BuildContext context, Exercise item) {
+  Widget _tile(BuildContext context, ActivityDTO item) {
+    final leadingImage = switch (item.mimeType.split('/')[0]) {
+      'text' => const Icon(Icons.abc_sharp),
+      'image' => const Icon(Icons.image_outlined),
+      'video' => const Icon(Icons.video_collection_outlined),
+      _ => const Icon(Icons.question_mark_rounded),
+    };
+
     return ListTile(
       onTap: () {
-        context.push(RouteNames.exercise(item.id)).then((_) {
-          print('fresh');
+        context.push(RouteNames.activity(item.id)).then((_) {
           Future.sync(() => _pagingController.refresh());
         });
       },
-      leading: const CircleAvatar(
+      leading: CircleAvatar(
         radius: 30,
-        child: Icon(Icons.book),
+        child: leadingImage,
       ),
       trailing: _trailing(context, item),
       title: Text(
@@ -197,7 +232,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
   }
 
   @pragma('vm:prefer-inline')
-  Widget? _trailing(BuildContext context, Exercise item) {
+  Widget? _trailing(BuildContext context, ActivityDTO activity) {
     return MediaQuery.of(context).screenType == ScreenType.tablet ||
             MediaQuery.of(context).screenType == ScreenType.desktop
         ? SizedBox(
@@ -209,9 +244,11 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
               children: [
                 IconButton(
                   onPressed: () {
-                    context.push(RouteNames.editExercise(item.id)).then((_) {
-                      Future.sync(() => _pagingController.refresh());
-                    });
+                    context.push(RouteNames.editActivity(activity.id)).then(
+                      (_) {
+                        Future.sync(() => _pagingController.refresh());
+                      },
+                    );
                   },
                   icon: const Icon(
                     Icons.edit_document,
@@ -220,7 +257,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
                 ),
                 IconButton(
                   onPressed: () {
-                    _deleteExercise(item);
+                    _deleteActivity(activity);
                   },
                   icon: const Icon(
                     Icons.delete,
@@ -233,7 +270,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
         : null;
   }
 
-  _deleteExercise(Exercise exercise) {
+  _deleteActivity(ActivityDTO activity) {
     showDialog<String>(
       context: context,
       builder: (context) {
@@ -252,7 +289,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
                   ),
                 ),
                 Text(
-                  'Você realmente deseja excluir esse exercício?',
+                  'Você realmente deseja excluir essa atividade?',
                   maxLines: null,
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -265,9 +302,7 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
           actions: [
             TextButton(
               onPressed: () {
-                if (Navigator.canPop(context)) {
-                  Navigator.pop(context, 'Kill it');
-                }
+                Navigator.pop(context, 'Kill it');
               },
               child: const Text(
                 'Sim',
@@ -291,10 +326,44 @@ class _ExercisesListPageState extends State<ExercisesListPage> {
     ).then(
       (value) {
         if (value == 'Kill it') {
-          ExercisesService.delete(exercise.id).then(
+          ActivitiesService.delete(activity.id).then(
             (res) {
-              Toastr.success(context, 'Excluido com sucesso!');
-              _pagingController.refresh();
+              showDialog(
+                context: context,
+                barrierColor: const Color(0x55000000),
+                builder: (context) {
+                  return AlertDialog(
+                    content: SizedBox(
+                      height: 200,
+                      width: 300,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Excluido!',
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text(
+                              'Ok',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ).then((v) {
+                Navigator.pop(context);
+              });
             },
           ).catchError((e) {
             showDialog(

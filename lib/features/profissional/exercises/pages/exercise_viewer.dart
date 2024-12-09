@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:voz_amiga/dto/activityOfExercise.dto.dart';
 import 'package:voz_amiga/dto/exercise.dto.dart';
-import 'package:voz_amiga/infra/services/exercises.service.dart';
-import 'package:voz_amiga/pages/exercises/widgets/select_activity.w.dart';
+import 'package:voz_amiga/infra/log/logger.dart';
+import 'package:voz_amiga/features/profissional/exercises/services/exercises.service.dart';
+import 'package:voz_amiga/features/profissional/exercises/pages/widgets/select_activity.w.dart';
 import 'package:voz_amiga/shared/consts.dart';
 import 'package:voz_amiga/utils/platform_utils.dart';
 import 'package:voz_amiga/utils/string_utils.dart';
@@ -57,29 +58,29 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       // mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          height: MediaQuery.of(context).size.height * .3,
-          decoration: const BoxDecoration(color: Colors.black),
-          child: Center(
-            child: Material(
-              elevation: 1,
-              child: Container(
-                width: MediaQuery.of(context).size.height * .5,
-                decoration: const BoxDecoration(
-                  color: Colors.black12,
-                ),
-                child: const Placeholder(
-                  child: Center(
-                    child: Text(
-                      '[WIP]',
-                      style: TextStyle(fontSize: 30),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+        // Container(
+        //   height: MediaQuery.of(context).size.height * .3,
+        //   decoration: const BoxDecoration(color: Colors.black),
+        //   child: Center(
+        //     child: Material(
+        //       elevation: 1,
+        //       child: Container(
+        //         width: MediaQuery.of(context).size.height * .5,
+        //         decoration: const BoxDecoration(
+        //           color: Colors.black12,
+        //         ),
+        //         child: const Placeholder(
+        //           child: Center(
+        //             child: Text(
+        //               '[WIP]',
+        //               style: TextStyle(fontSize: 30),
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
         Padding(
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
@@ -136,9 +137,8 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
                             return SelectActivity(
                               exerciseId: _exercise!.id,
                               activities: _exercise!.activities
-                                      ?.map((a) => a.id)
-                                      .toList() ??
-                                  [],
+                                  .map((a) => a.id)
+                                  .toList(),
                             );
                           },
                         ).then((_) {
@@ -157,11 +157,11 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
             ),
           ),
         ),
-        (_exercise?.activities?.isNotEmpty == true)
+        (_exercise?.activities.isNotEmpty == true)
             ? Expanded(
                 child: ListView.separated(
                   shrinkWrap: true,
-                  itemCount: _exercise!.activities!.length,
+                  itemCount: _exercise!.activities.length,
                   separatorBuilder: (context, i) {
                     return const SizedBox(
                       height: 0.5,
@@ -171,8 +171,8 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
                     );
                   },
                   itemBuilder: (context, i) {
-                    print(i);
-                    return _tile(context, _exercise!.activities![i]);
+                    logger.t(i);
+                    return _tile(context, _exercise!.activities[i]);
                   },
                 ),
               )
@@ -192,7 +192,7 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
     );
   }
 
-  Widget _tile(BuildContext context, ExerciseActivity item) {
+  Widget _tile(BuildContext context, ActivityOfExerciseDTO item) {
     return ListTile(
       onTap: () {},
       leading: const CircleAvatar(
@@ -213,7 +213,7 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
   }
 
   @pragma('vm:prefer-inline')
-  Widget? _trailing(BuildContext context, ExerciseActivity item) {
+  Widget? _trailing(BuildContext context, ActivityOfExerciseDTO item) {
     return MediaQuery.of(context).screenType == ScreenType.tablet ||
             MediaQuery.of(context).screenType == ScreenType.desktop
         ? SizedBox(
@@ -268,7 +268,7 @@ class _ExerciseViewerPageState extends State<ExerciseViewerPage> {
             fit: FlexFit.tight,
             child: ElevatedButton(
               onPressed: () {
-                // _deleteExercise();
+                context.push(RouteNames.assignExercise(widget.id));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
